@@ -2,6 +2,7 @@ import customtkinter as ctk
 from tkinter import ttk, messagebox
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from drill_api import get_oos_rate_data, get_price_elasticity_data
 
 # IMPORT CÁC HÀM XỬ LÝ DATABASE THẬT
 from crud_mysql import get_all_from_table, insert_record, update_record, delete_record
@@ -284,42 +285,66 @@ class ECommerceDashboard(ctk.CTk):
         header_frame = ctk.CTkFrame(self.mapreduce_frame, fg_color="transparent")
         header_frame.pack(fill="x", padx=20, pady=(20, 0))
         ctk.CTkLabel(header_frame, text="KẾT QUẢ PHÂN TÍCH MAPREDUCE", font=("Arial", 22, "bold"), text_color="black").pack(side="left")
-
-        kpi_frame = ctk.CTkFrame(self.mapreduce_frame, fg_color="transparent")
-        kpi_frame.pack(fill="x", padx=20, pady=20)
         
-        self.create_kpi_card(kpi_frame, "Tổng Sản Phẩm", "11,726", "#17a2b8")
-        self.create_kpi_card(kpi_frame, "Tổng Lượt Bán", "845,032", "#28a745")
-        self.create_kpi_card(kpi_frame, "Uy tín Nhất", "Laptop Dell XPS", "#ffc107")
-
         chart_frame = ctk.CTkFrame(self.mapreduce_frame, fg_color="white")
-        chart_frame.pack(fill="both", expand=True, padx=20, pady=(0, 20))
+        # Đổi pady=(0, 20) thành pady=20 để đồ thị cách đều tiêu đề
+        chart_frame.pack(fill="both", expand=True, padx=20, pady=20) 
 
         self.draw_charts(chart_frame)
 
-    def create_kpi_card(self, parent, title, value, color):
-        card = ctk.CTkFrame(parent, fg_color=color, corner_radius=10, width=250, height=100)
-        card.pack(side="left", padx=10, expand=True, fill="both")
-        card.pack_propagate(False)
-        ctk.CTkLabel(card, text=title, font=("Arial", 14), text_color="white").pack(pady=(15, 0))
-        ctk.CTkLabel(card, text=value, font=("Arial", 28, "bold"), text_color="white").pack()
-
     def draw_charts(self, parent_frame):
-        # Biểu đồ nền trắng, chữ đen
+        # 1. Lấy dữ liệu THẬT từ HDFS thông qua file drill_api
+        df_oos = get_oos_rate_data()
+        df_elasticity = get_price_elasticity_data()
+
+        # 2. Cấu hình khung chứa 2 biểu đồ (1 hàng, 2 cột)
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4), facecolor='#f8f9fa')
 
-        categories = ['Máy tính', 'Điện thoại', 'Phụ kiện', 'Gia dụng']
-        sales = [450, 800, 300, 600]
-        ax1.bar(categories, sales, color='#17a2b8')
-        ax1.set_title('Xu hướng Mua sắm (Mock Data)', color='black')
-        ax1.tick_params(colors='black')
-        
-        labels = ['Uy tín cao', 'Uy tín trung bình', 'Thấp']
-        sizes = [60, 30, 10]
-        colors = ['#28a745', '#ffc107', '#dc3545']
-        ax2.pie(sizes, labels=labels, colors=colors, autopct='%1.1f%%', textprops={'color':"black"})
-        ax2.set_title('Tỷ lệ Uy tín Sản phẩm (Mock Data)', color='black')
+        # ================= ax1: BIỂU ĐỒ TỶ LỆ CHÁY HÀNG (BAR CHART) =================
+        if not df_oos.empty:
+            categories = df_oos['category_name'].tolist()
+            rates = df_oos['oos_rate'].tolist()
+            
+            # Tô đỏ cột nếu tỷ lệ cháy hàng > 20%
+            bar_colors = ['#dc3545' if r > 20 else '#17a2b8' for r in rates]
+            
+            ax1.bar(categories, rates, color=bar_colors)
+            ax1.set_title('Cảnh báo: Tỷ lệ Cháy hàng (%)', color='black', pad=15, weight='bold')
+            ax1.tick_params(colors='black')
+            ax1.set_xticks(range(len(categories)))
+            ax1.set_xticklabels(categories, rotation=15, ha='right', fontsize=9) 
+        else:
+            ax1.text(0.5, 0.5, 'Chưa kết nối được Drill\nHoặc dữ liệu rỗng', 
+                     ha='center', va='center', color='red', weight='bold')
+            ax1.set_title('Cảnh báo: Tỷ lệ Cháy hàng (%)', color='black')
+            ax1.axis('off')
 
+        # ================= ax2: ĐỘ CO GIÃN THEO GIÁ (AREA CHART) =================
+        if not df_elasticity.empty:
+            buckets = df_elasticity['price_bucket'].tolist()
+            volumes = df_elasticity['total_sold_volume'].tolist()
+            
+            # Vẽ biểu đồ vùng (Area Chart)
+            # alpha=0.3 tạo độ trong suốt cho vùng màu bên dưới đường line
+            ax2.fill_between(buckets, volumes, color="#28a745", alpha=0.3) 
+            ax2.plot(buckets, volumes, color="#28a745", marker='o', linewidth=2, markersize=6)
+            
+            ax2.set_title('Độ Co giãn Cầu theo Phân khúc Giá', color='black', pad=15, weight='bold')
+            ax2.tick_params(colors='black')
+            ax2.set_xticks(range(len(buckets)))
+            ax2.set_xticklabels(buckets, rotation=15, ha='right', fontsize=9)
+            
+            # Hiển thị số liệu trực tiếp trên các điểm của biểu đồ
+            for i, txt in enumerate(volumes):
+                ax2.annotate(f"{txt:,}", (buckets[i], volumes[i]), textcoords="offset points", xytext=(0,10), ha='center', fontsize=9)
+        else:
+            ax2.text(0.5, 0.5, 'Chưa kết nối được Drill\nHoặc dữ liệu rỗng', 
+                     ha='center', va='center', color='red', weight='bold')
+            ax2.set_title('Độ Co giãn Cầu theo Phân khúc Giá', color='black')
+            ax2.axis('off')
+
+        # 3. Đưa biểu đồ lên giao diện CustomTkinter
+        plt.tight_layout() 
         canvas = FigureCanvasTkAgg(fig, master=parent_frame)
         canvas.draw()
         canvas.get_tk_widget().pack(fill="both", expand=True, padx=10, pady=10)
