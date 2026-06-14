@@ -1,0 +1,1 @@
+"""Hasaki.vn scraper package."""

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { width: 290px; font: 14px system-ui, Arial, sans-serif; margin: 0; padding: 14px; color: #222; }
+    h1 { font-size: 15px; margin: 0 0 10px; }
+    .state { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; background: #999; }
+    .dot.on { background: #d32f2f; box-shadow: 0 0 0 3px rgba(211,47,47,.2); }
+    .count { color: #555; font-size: 13px; margin-bottom: 12px; }
+    button { width: 100%; padding: 9px; margin: 4px 0; border: 0; border-radius: 6px; cursor: pointer; font-size: 14px; }
+    .primary { background: #1976d2; color: #fff; }
+    .stop { background: #d32f2f; color: #fff; }
+    .ghost { background: #eee; color: #333; }
+    .hint { margin-top: 12px; font-size: 12px; color: #666; line-height: 1.6; border-top: 1px solid #eee; padding-top: 10px; }
+    kbd { background: #f1f1f1; border: 1px solid #ccc; border-bottom-width: 2px; border-radius: 4px; padding: 1px 5px; font-family: monospace; font-size: 11px; }
+  </style>
+</head>
+<body>
+  <h1>Hasaki &amp; Lamthao API Catcher</h1>
+  <div class="state"><span id="dot" class="dot"></span><span id="stateText">—</span></div>
+  <div class="count" id="count">0 request đã bắt</div>
+
+  <button id="toggle" class="primary">Bắt đầu ghi</button>
+  <button id="download" class="ghost">Tải dữ liệu (.json)</button>
+  <button id="clear" class="ghost">Xóa dữ liệu đã bắt</button>
+
+  <div class="hint">
+    <b>Phím tắt</b> (dùng ngay trên trang web):<br>
+    <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>N</kbd> — Ghi / Dừng<br>
+    <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>M</kbd> — Tải về<br>
+    Đã bỏ qua các domain của Google.
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

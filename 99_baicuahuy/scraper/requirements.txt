@@ -1,0 +1,9 @@
+# Scraper Hasaki & Lamthao — KHÔNG cần thư viện bên thứ ba.
+# Chỉ dùng thư viện chuẩn của Python 3.8+ (urllib, json, csv, dataclasses, argparse...).
+#
+# Chạy trực tiếp:
+#   python run.py hasaki  --categories cham-soc-da-mat-c4 --max-pages 1
+#   python run.py lamthao --collections cham-soc-co-the   --max-pages 1
+#
+# (Tùy chọn) nếu sau này muốn tăng tốc bằng requests/httpx thì cài thêm:
+# requests>=2.31

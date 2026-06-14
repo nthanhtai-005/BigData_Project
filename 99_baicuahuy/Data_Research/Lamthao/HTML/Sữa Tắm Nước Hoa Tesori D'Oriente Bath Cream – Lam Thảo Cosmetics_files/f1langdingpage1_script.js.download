@@ -1,0 +1,221 @@
+
+var F1langdingpage1_page = {};
+F1langdingpage1_page.Quickview = { 
+	statusVariants: {},
+	statusOption1: {},
+	init:function(){
+		var self = this;
+		self.changeOption(); 
+		self.render();
+		self.setStatusVariants();
+		self.checkOptionFirst();
+	},
+	setStatusVariants: function(){
+		var self = this;
+		var opsAll = [];
+		var ops1 = [];
+		$.each(window.f1langdingpage1_variable.quickview.variants, function(i, v){
+			var flagOpsAll = { val:'', status:''};
+			if($.inArray(v['options'], opsAll) === -1){
+				flagOpsAll.val = v['options'].toString();
+				flagOpsAll.status = v.available;
+				opsAll.push(flagOpsAll);
+			}
+			if($.inArray(v['option1'], ops1) === -1){
+				ops1.push(v['option1']);
+			}
+		});
+		self.statusVariants = opsAll; 
+		self.statusOption1 = ops1; 
+	},
+	checkOptionFirst: function(){
+		var self = this;
+		var flagClick0 = false; 
+		$('#product-quickview .product-sw-line').eq(0).find('.product-sw-select-item input').addClass('soldOut').prop('checked',false);
+		$.each(self.statusOption1, function(keyC1, valC1){
+			$.each(self.statusVariants, function(keyC2, valC2){
+				if(String(valC2.val).indexOf(valC1) !== -1){
+					if(valC2.status === true){
+						$('#product-quickview .product-sw-select-item input[value="'+ valC1 +'"]').removeClass('soldOut');
+						if(flagClick0 == false){
+							flagClick0 = true;
+							$('#product-quickview .product-sw-select-item input[value="'+ valC1 +'"]').trigger('click');
+						}
+					}
+				}
+			})
+		})
+	},
+	checkAvailable: function(type, name, value){
+		var self = this;
+		if(name.indexOf(1) !== -1){
+			$('#product-quickview .product-sw-line').eq(1).find('.product-sw-select-item input').addClass('soldOut').prop('checked',false);
+			$('#product-quickview .product-sw-line').eq(2).find('.product-sw-select-item input').addClass('soldOut').prop('checked',false);
+			var flagClick1 = false; 
+			$('#product-quickview .product-sw-line').eq(1).find('input').each(function(key1, val1){
+				var flagOption1 = $(this).val();
+				if(window.f1langdingpage1_variable.quickview.options.length === 3){
+					$('#product-quickview .product-sw-line').eq(2).find('input').each(function(key1, val1){
+						var flagOption2 = $(this).val();
+						var flagCheck = `${value},${flagOption1},${flagOption2}`;
+						$.each(self.statusVariants, function(keyC, valC){
+							if(String(valC.val) === String(flagCheck) && valC.status){
+								$('#product-quickview .product-sw-select-item input[value="'+ flagOption1 +'"]').removeClass('soldOut');
+								$('#product-quickview .product-sw-select-item input[value="'+ flagOption2 +'"]').removeClass('soldOut');
+								if(flagClick1 == false){
+									flagClick1 = true;
+									$('#product-quickview .product-sw-select-item input[value="'+ flagOption1 +'"]').trigger('click');
+								}
+								return false;
+							}
+						})
+					});
+				}else{
+					var flagCheck = `${value},${flagOption1}`
+					$.each(self.statusVariants, function(keyC, valC){
+						if(String(valC.val) === String(flagCheck) && valC.status){
+							$('#product-quickview .product-sw-select-item input[value="'+ flagOption1 +'"]').removeClass('soldOut');
+							if(flagClick1 == false){
+								flagClick1 = true;
+								$('#product-quickview .product-sw-select-item input[value="'+ flagOption1 +'"]').trigger('click');
+							}
+							return false;
+						}
+					})
+				}
+			})
+		}else if(name.indexOf(2) !== -1){
+			if(window.f1langdingpage1_variable.quickview.options.length == 3){
+				var flagClick2 = false;
+				$('#product-quickview .product-sw-line').eq(2).find('input').each(function(key23, val3){
+					var flagOption2 = $(this).val();
+					var flagCheck = `${$('#product-quickview .product-sw-line').eq(0).find('input:checked').val()},${value},${flagOption2}`;
+					$.each(self.statusVariants, function(keyC, valC){
+						if(String(valC.val) === String(flagCheck) && valC.status){
+							$('#product-quickview .product-sw-select-item input[value="'+ value +'"]').removeClass('soldOut');
+							$('#product-quickview .product-sw-select-item input[value="'+ flagOption2 +'"]').removeClass('soldOut');
+							if(flagClick2 == ''){
+								flagClick2 = true;
+								$('#product-quickview .product-sw-select-item input[value="'+ flagOption2 +'"]').trigger('click');
+							}
+							return false;
+						}
+					})
+				})
+			}
+		}
+		return false;
+	},
+	changeOption: function(){
+		var self = this;
+		$('body').on('change', '#product-quickview .trigger-option-sw', function(){
+			var name = $(this).attr('data-name');
+			var value = $(this).val();
+			$('#product-quickview select[data-option='+name+'][id^="product-quickview-select"]').val(value).trigger('change');
+			self.checkAvailable(true, name, value);
+		})
+	},
+	render: function(){
+		new Haravan.OptionSelectors("product-quickview-select", { product: window.f1langdingpage1_variable.quickview, onVariantSelected: this.variants });
+	},
+	variants: function(variant, selector){
+		if(variant){
+
+		if(variant.featured_image != null)
+		{
+			if($(".newins").length == 0){
+			var zong = Haravan.resizeImage(variant.featured_image.src,'medium').replace("https:",'');
+			console.log(zong);
+			var lar = $(".vislicnfthe img[src='"+zong+"']").parent().trigger('click');
+			}
+
+		}
+			
+			window.f1langdingpage1_variable.quickview.availableOption = variant.available;
+			var saleChange = Math.round(100 - (variant.price / (variant.compare_at_price / 100)));
+			if(variant.price == 0){
+				
+				
+			}else{
+				
+				if(variant.compare_at_price > variant.price){
+					$('#product-quickview .product-quickview-price .product-quickview-price-compare').text(Haravan.formatMoney(variant.compare_at_price, window.f1langdingpage1_variable.formatMoney)).prop('hidden', false);
+				
+					$('#product-quickview .product-quickview-price .product-quickview-price-discount').html('Tiết kiệm ' + saleChange + '%').prop('hidden', false);
+			
+					var pricen = Haravan.formatMoney(variant.compare_at_price - variant.price, window.f1langdingpage1_variable.formatMoney);
+					var netprice1 = pricen.split(",")
+					var htmlpri = `<div class="pricenet">
+						${Haravan.formatMoney(variant.compare_at_price, window.f1langdingpage1_variable.formatMoney)}
+						</div>
+						
+						<div class="pricenetold">
+							${Haravan.formatMoney(variant.price, window.f1langdingpage1_variable.formatMoney)}
+						</div>
+						
+						
+
+						<div class="pricenetoldx2">
+							<span>Tiết kiệm</span>
+							<span>	${pricen} </span>
+						<div class="vatpos"><smal style="    font-size: 12px;">*Giá đã bao gồm VAT</smal></div>
+						</div>`;
+					
+					$(".finpricezicgr1").html(htmlpri)
+					$(".finpricezicgr21").html(saleChange + '%').show();
+					
+					
+				
+				}else{
+					
+					var pricen = Haravan.formatMoney(variant.compare_at_price - variant.price, window.f1langdingpage1_variable.formatMoney);
+					var netprice1 = pricen.split(",")
+					var htmlpri = `
+						<div class="pricenetold">
+							${Haravan.formatMoney(variant.price, window.f1langdingpage1_variable.formatMoney)}
+						</div>
+						
+					`;
+					
+					$(".finpricezicgr1").html(htmlpri)
+					$(".finpricezicgr21").html("").hide();
+					
+					
+					$('#product-quickview .product-quickview-price .product-quickview-price-compare').prop('hidden', true);
+					$('#product-quickview .product-quickview-price .product-quickview-price-discount').prop('hidden', true);
+				}
+				
+				
+			}
+			// Sku
+			$('#product-quickview .product-quickview-info .product-quickview-info-sku span').html(variant.sku != null ? variant.sku : 'Đang cập nhật');
+			// Barcode
+			$('#product-quickview .product-quickview-info .product-quickview-info-barcode span').html(variant.barcode != null ? variant.barcode : 'Đang cập nhật');
+			// CTA
+			if(variant.available){
+				$('#product-quickview .product-quickview-cta button[data-type="product-quickview-add"]').attr('disabled', false);
+				$('#product-quickview .product-quickview-cta button[data-type="product-quickview-add"] span').html("Chọn ngay sản phẩm bạn yêu thích")
+				$('#product-quickview .product-quickview-cta button[data-type="product-quickview-add"] strong').html("Thêm vào giỏ");
+			}else{
+				$('#product-quickview .product-quickview-cta button[data-type="product-quickview-add"]').attr('disabled', true);
+				$('#product-quickview .product-quickview-cta button[data-type="product-quickview-add"] span').html("Liên hệ để được tư vấn thêm")
+				$('#product-quickview .product-quickview-cta button[data-type="product-quickview-add"] strong').html("Tạm hết hàng");
+			}
+
+		}else{
+			$('#product-quickview .product-quickview-cta button[data-type="product-quickview-add"]').attr('disabled', false);
+			$('#product-quickview .product-quickview-cta button[data-type="product-quickview-add"] span').html("Chọn ngay sản phẩm bạn yêu thích")
+			$('#product-quickview .product-quickview-cta button[data-type="product-quickview-add"] strong').html("Thêm vào giỏ");
+			window.f1langdingpage1_variable.quickview.availableOption = false;
+		}
+	},
+};
+$(document).ready(function(){
+	F1langdingpage1_page.Quickview.init();
+	setTimeout(function(){
+		$(".newins").removeClass("newins")
+	},500)
+	
+
+})
+

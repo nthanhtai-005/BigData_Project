@@ -1,0 +1,261 @@
+================================================================
+ FILE GO TAY / COPY-PASTE TOAN BO 4 SCRIPT PIG
+ Dung file nay khi KHONG chuyen duoc file vao may ao.
+ Cach dung: tren may ao go  "nano <ten_file>.pig"  roi paste
+ dung doan tuong ung ben duoi (chi paste phan giua 2 duong ----).
+================================================================
+
+
+############################################################
+# FILE 1:  01_price_gap.pig
+# Tao bang lenh:  nano 01_price_gap.pig
+############################################################
+-----------------------BAT DAU COPY-----------------------
+-- ============================================================
+-- BAI TOAN 1 (Pig): So sanh muc "Thoi gia" (Price Gap)
+--   giua 2 san Hasaki va Lam Thao theo tung Danh muc
+-- Phep toan co ban: FILTER, FOREACH (tinh hieu so), GROUP BY, AVG
+-- Output: source_name , category_name , avg_price_gap
+-- Thu muc output: /output/pig_price_gap
+-- ============================================================
+
+-- 1. Nap du lieu TSV (dau vao MapReduce do ETL sinh ra tren HDFS).
+--    Day chinh la du lieu nam duoi bang Hive external 'mapreduce_input_tsv',
+--    KHONG phai file csv mau o may ca nhan.
+raw = LOAD '/data/bigdata_ecommerce/mapreduce_input/part-*'
+      USING PigStorage('\t') AS (
+          id:int,
+          name:chararray,
+          source_id:int,
+          brand_id:int,
+          source_name:chararray,
+          category_name:chararray,
+          brand_name:chararray,
+          num_images:int,
+          price:double,
+          market_price:double,
+          discount_amount:double,
+          discount_percent:double,
+          has_discount:int,
+          sold_count:long,
+          stock_quantity:long,
+          scraped_at:chararray,
+          category_id:int
+      );
+
+-- 2. Chi giu 2 san can so sanh (Hasaki vs Lam Thao)
+two_sources = FILTER raw BY (source_name == 'hasaki' OR source_name == 'lamthao');
+
+-- 3. Tinh hieu so market_price - price (muc tro gia / thoi gia)
+with_gap = FOREACH two_sources GENERATE
+               source_name,
+               category_name,
+               (market_price - price) AS price_gap;
+
+-- 4. Gom nhom theo (san, danh muc)
+grp = GROUP with_gap BY (source_name, category_name);
+
+-- 5. Tinh trung binh price_gap cho tung nhom
+result = FOREACH grp GENERATE
+             group.source_name             AS source_name,
+             group.category_name           AS category_name,
+             (long) ROUND(AVG(with_gap.price_gap)) AS avg_price_gap;
+
+-- 6. Sap xep cho de doc: theo san, gap giam dan
+ordered = ORDER result BY source_name ASC, avg_price_gap DESC;
+
+-- 7. Ghi ket qua ra HDFS (CSV) va in ra man hinh de chup hinh
+STORE ordered INTO '/output/pig_price_gap' USING PigStorage(',');
+DUMP ordered;
+------------------------KET THUC COPY----------------------
+
+
+############################################################
+# FILE 2:  02_discount_bucket.pig
+# Tao bang lenh:  nano 02_discount_bucket.pig
+############################################################
+-----------------------BAT DAU COPY-----------------------
+-- ============================================================
+-- BAI TOAN 2 (Pig): Hieu qua cua Khoang Giam gia (Discount Bucket)
+--   Hasaki vs Lam Thao
+-- Phep toan co ban: FILTER, bincond (phan nhom), GROUP BY, AVG, COUNT
+-- Output: source_name , discount_bucket , avg_sold_count , num_products
+-- Thu muc output: /output/pig_discount_bucket
+-- ============================================================
+
+raw = LOAD '/data/bigdata_ecommerce/mapreduce_input/part-*'
+      USING PigStorage('\t') AS (
+          id:int,
+          name:chararray,
+          source_id:int,
+          brand_id:int,
+          source_name:chararray,
+          category_name:chararray,
+          brand_name:chararray,
+          num_images:int,
+          price:double,
+          market_price:double,
+          discount_amount:double,
+          discount_percent:double,
+          has_discount:int,
+          sold_count:long,
+          stock_quantity:long,
+          scraped_at:chararray,
+          category_id:int
+      );
+
+-- 1. Chi giu 2 san can so sanh
+two_sources = FILTER raw BY (source_name == 'hasaki' OR source_name == 'lamthao');
+
+-- 2. Phan nhom discount_percent thanh cac phan doan (bucket) bang toan tu dieu kien
+bucketed = FOREACH two_sources GENERATE
+    source_name,
+    sold_count,
+    (
+        (discount_percent <= 10.0 ? '00-10%' :
+        (discount_percent <= 20.0 ? '11-20%' :
+        (discount_percent <= 30.0 ? '21-30%' :
+        (discount_percent <= 50.0 ? '31-50%' : 'tren-50%'))))
+    ) AS discount_bucket;
+
+-- 3. Gom nhom theo (san, bucket)
+grp = GROUP bucketed BY (source_name, discount_bucket);
+
+-- 4. Tinh sold_count trung binh + dem so san pham trong moi bucket
+result = FOREACH grp GENERATE
+             group.source_name              AS source_name,
+             group.discount_bucket           AS discount_bucket,
+             (long) ROUND(AVG(bucketed.sold_count)) AS avg_sold_count,
+             COUNT(bucketed)                 AS num_products;
+
+-- 5. Sap xep theo san roi theo bucket
+ordered = ORDER result BY source_name ASC, discount_bucket ASC;
+
+-- 6. Ghi ket qua ra HDFS (CSV) va in ra man hinh
+STORE ordered INTO '/output/pig_discount_bucket' USING PigStorage(',');
+DUMP ordered;
+------------------------KET THUC COPY----------------------
+
+
+############################################################
+# FILE 3:  03_category_scale.pig
+# Tao bang lenh:  nano 03_category_scale.pig
+############################################################
+-----------------------BAT DAU COPY-----------------------
+-- ============================================================
+-- BAI TOAN 3 (Pig - DE TAI MOI): Quy mo Danh muc & Tong luong ban
+--   So sanh SO SAN PHAM va TONG LUOT BAN theo tung Danh muc
+--   giua 2 san Hasaki va Lam Thao
+-- Phep toan co ban: FILTER, GROUP BY, COUNT, SUM
+-- Output: source_name , category_name , total_products , total_sold
+-- Thu muc output: /output/pig_category_scale
+-- ============================================================
+
+raw = LOAD '/data/bigdata_ecommerce/mapreduce_input/part-*'
+      USING PigStorage('\t') AS (
+          id:int,
+          name:chararray,
+          source_id:int,
+          brand_id:int,
+          source_name:chararray,
+          category_name:chararray,
+          brand_name:chararray,
+          num_images:int,
+          price:double,
+          market_price:double,
+          discount_amount:double,
+          discount_percent:double,
+          has_discount:int,
+          sold_count:long,
+          stock_quantity:long,
+          scraped_at:chararray,
+          category_id:int
+      );
+
+-- 1. Chi giu 2 san can so sanh
+two_sources = FILTER raw BY (source_name == 'hasaki' OR source_name == 'lamthao');
+
+-- 2. Chi lay 3 cot can dung
+proj = FOREACH two_sources GENERATE source_name, category_name, sold_count;
+
+-- 3. Gom nhom theo (san, danh muc)
+grp = GROUP proj BY (source_name, category_name);
+
+-- 4. Dem so san pham (COUNT) va tinh tong luong ban (SUM)
+result = FOREACH grp GENERATE
+             group.source_name    AS source_name,
+             group.category_name  AS category_name,
+             COUNT(proj)           AS total_products,
+             SUM(proj.sold_count)  AS total_sold;
+
+-- 5. Sap xep: theo san, tong luong ban giam dan
+ordered = ORDER result BY source_name ASC, total_sold DESC;
+
+-- 6. Ghi ket qua ra HDFS (CSV) va in ra man hinh
+STORE ordered INTO '/output/pig_category_scale' USING PigStorage(',');
+DUMP ordered;
+------------------------KET THUC COPY----------------------
+
+
+############################################################
+# FILE 4:  04_price_range.pig
+# Tao bang lenh:  nano 04_price_range.pig
+############################################################
+-----------------------BAT DAU COPY-----------------------
+-- ============================================================
+-- BAI TOAN 4 (Pig - DE TAI MOI): Khung gia san pham theo Danh muc
+--   Gia thap nhat (MIN) - cao nhat (MAX) - trung binh (AVG)
+--   cua moi san Hasaki va Lam Thao, theo tung Danh muc
+-- Phep toan co ban: FILTER, GROUP BY, MIN, MAX, AVG, ORDER BY
+-- Output: source_name , category_name , min_price , max_price , avg_price
+-- Thu muc output: /output/pig_price_range
+-- ============================================================
+
+raw = LOAD '/data/bigdata_ecommerce/mapreduce_input/part-*'
+      USING PigStorage('\t') AS (
+          id:int,
+          name:chararray,
+          source_id:int,
+          brand_id:int,
+          source_name:chararray,
+          category_name:chararray,
+          brand_name:chararray,
+          num_images:int,
+          price:double,
+          market_price:double,
+          discount_amount:double,
+          discount_percent:double,
+          has_discount:int,
+          sold_count:long,
+          stock_quantity:long,
+          scraped_at:chararray,
+          category_id:int
+      );
+
+-- 1. Chi giu 2 san can so sanh
+two_sources = FILTER raw BY (source_name == 'hasaki' OR source_name == 'lamthao');
+
+-- 2. Bo cac dong gia khong hop le (phong khi du lieu ban)
+valid = FILTER two_sources BY price > 0;
+
+-- 3. Chi lay 3 cot can dung
+proj = FOREACH valid GENERATE source_name, category_name, price;
+
+-- 4. Gom nhom theo (san, danh muc)
+grp = GROUP proj BY (source_name, category_name);
+
+-- 5. Tinh MIN, MAX, AVG gia trong moi nhom
+result = FOREACH grp GENERATE
+             group.source_name    AS source_name,
+             group.category_name  AS category_name,
+             (long) MIN(proj.price)        AS min_price,
+             (long) MAX(proj.price)        AS max_price,
+             (long) ROUND(AVG(proj.price)) AS avg_price;
+
+-- 6. Sap xep: theo san, gia cao nhat giam dan
+ordered = ORDER result BY source_name ASC, max_price DESC;
+
+-- 7. Ghi ket qua ra HDFS (CSV) va in ra man hinh
+STORE ordered INTO '/output/pig_price_range' USING PigStorage(',');
+DUMP ordered;
+------------------------KET THUC COPY----------------------

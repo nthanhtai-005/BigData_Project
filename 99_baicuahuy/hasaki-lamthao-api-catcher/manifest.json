@@ -1,0 +1,34 @@
+{
+  "manifest_version": 3,
+  "name": "Hasaki & Lamthao API Catcher",
+  "version": "1.0.0",
+  "description": "Bắt toàn bộ API trên hasaki.vn và lamthaocosmetics.vn để cào dữ liệu sản phẩm. Bỏ qua các domain của Google.",
+  "minimum_chrome_version": "111",
+  "permissions": ["storage"],
+  "host_permissions": [
+    "*://*.hasaki.vn/*",
+    "*://*.lamthaocosmetics.vn/*"
+  ],
+  "background": {
+    "service_worker": "src/background.js"
+  },
+  "action": {
+    "default_popup": "src/popup.html",
+    "default_title": "Hasaki & Lamthao API Catcher"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.hasaki.vn/*", "*://*.lamthaocosmetics.vn/*"],
+      "js": ["src/interceptor.js"],
+      "run_at": "document_start",
+      "world": "MAIN",
+      "all_frames": true
+    },
+    {
+      "matches": ["*://*.hasaki.vn/*", "*://*.lamthaocosmetics.vn/*"],
+      "js": ["src/content.js"],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ]
+}

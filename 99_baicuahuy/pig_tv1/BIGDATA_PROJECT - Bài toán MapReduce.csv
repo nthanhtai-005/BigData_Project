@@ -1,0 +1,17 @@
+STT,Bài toán,Công cụ,Mô tả,Thư mục output,Định dạng Output,Cấu trúc Cột Output
+1,So sánh Thương hiệu theo từng Danh mục,Java MapReduce,"Mapper: Chỉ lấy dòng có brand là 'Hasaki' hoặc 'Lam Thảo'. Gửi Key=category, Value=brand:sold_count.
+Reducer: Đổ vào HashMap để cộng dồn lượng bán của 2 brand. Tại cleanup(), so sánh xem brand nào cao hơn và xuất ra người chiến thắng.",/output/mr_category_better/,CSV,"category, winning_brand, max_sold"
+2,Tác động của Hình ảnh đến Sức mua theo Phân khúc Giá,Java MapReduce,"Mapper: Lọc 2 brand. Gom nhóm dữ liệu theo 2 chiều (Phân khúc giá + Số lượng ảnh) thành một Class Key chung.
+Reducer: Tính sold_count trung bình cho từng cặp Khóa phức hợp để xem hành vi khách hàng của 2 hãng có giống nhau không.",/output/mr_price_image_impact/,CSV,"price_tier, num_images, avg_sold_count"
+3,Phân loại Sản phẩm theo Ma trận BCG của Hasaki và Lam Thảo,Java MapReduce,"Mapper: Lọc 2 brand.
+Reducer: Xét điều kiện sold_count và discount_percent. Chia sản phẩm của 2 hãng thành các file: Star_Products (Bán chạy, ít sale); Cash_Cows (Bán chạy, sale nhiều); Dogs (Bán ế).",/output/mr_bcg_matrix/,CSV,"brand, product_name, sold_count, discount_percent"
+4,Top 10 Sản phẩm có nhu cầu cao nhất của 2 thương hiệu,Java MapReduce,"Mapper: Lọc 2 brand. Dùng TreeMap giữ lại Top 10 sản phẩm có stock = 0 và sold_count cao nhất cục bộ.
+Reducer (Cấu hình numReduce = 1): Gom Top 10 của các Mapper lại, lọc lần cuối lấy đúng 10 sản phẩm hot nhất đang đứt gãy nguồn cung.",/output/mr_top10_outofstock/,CSV,"brand, product_name, sold_count, discount_percent"
+5,Cán cân Vốn ngâm Hàng tồn kho (Hasaki vs Lam Thảo) theo Danh mục,Java MapReduce,"Mapper: Lọc 2 brand. Đóng gói sold_count, stock_quantity và capital_locked vào chung 1 Object Writable làm Value.
+Reducer: Tính tổng cả 3 chỉ số theo Key = category + ""_"" + brand để xem hãng nào đang đọng vốn nhiều hơn.",/output/mr_inventory_capital/,CSV,"category, brand, total_stock, total_capital"
+6,Tổng doanh thu và Tỷ lệ sale trung bình: Hasako vs Lam Thảo,Java MapReduce,"Mapper: Lọc 2 brand. Mapper tự cộng dồn doanh thu và đếm số sản phẩm của Hasako/Lam Thảo ngay tại RAM bằng HashMap, giảm tối đa lượng dữ liệu truyền qua mạng.
+Reducer: Chỉ việc cộng tổng các cục dữ liệu lớn lại.",/output/mr_brand_revenue/,CSV,"brand, total_revenue, avg_discount_percent"
+7,"So sánh mức độ ""Thổi giá"" (Price Gap) giữa Hasaki và Lam Thảo",Apache Pig,"Dùng script .pig để LOAD dữ liệu. Lệnh FILTER brand IN ('Hasako', 'Lam Thảo'). Dùng FOREACH tạo cột tính hiệu số (market_price - price). Kế tiếp GROUP BY brand, category và dùng AVG() tính mức trợ giá.",/output/pig_price_gap/,,brand \t category \t avg_price_gap
+8,Đánh giá Hiệu quả Khoảng Giảm giá của 2 thương hiệu,Apache Pig,"LOAD và FILTER 2 brand. Dùng toán tử điều kiện phân nhóm cột discount_percent thành các phân đoạn (0-10%, 11-20%...). Kế tiếp GROUP BY brand, discount_bucket và tính AVG(sold_count).",/output/pig_discount_bucket/,,"brand, discount_bucket, avg_sold_count"
+9,Cảnh báo tỉ lệ cháy hàng theo ngành hàng,Python mapreduce,,,csv,"category_name, total_products, total_oos, oos_rate_percent"
+10,Đo lường độ co giãn của cầu theo phân khúc giá thực tế,Python mapreduce,,,,

@@ -1,0 +1,18 @@
+1. Trang Hasaki: https://shopee.vn/hasakivietnam
+
+API:
+curl 'https://hasaki.vn/mobile/v3/detail/product?product_id=124096&is_desktop=1' \
+  -H 'sec-ch-ua-platform: "Windows"' \
+  -H 'Referer: https://hasaki.vn/san-pham/combo-cocoon-nuoc-can-bang-sen-hau-giang-310ml-nuoc-tay-trang-bi-dao-500ml-124096.html' \
+  -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0' \
+  -H 'sec-ch-ua: "Microsoft Edge";v="149", "Chromium";v="149", "Not)A;Brand";v="24"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'mobiledeviceid: 60fff625-b379-42fa-a60e-f13760c01174'
+
+curl 'https://hasaki.vn/mobile/v1/detail/product/comments?product_id=124096&page=1&size=5' \
+  -H 'sec-ch-ua-platform: "Windows"' \
+  -H 'Referer: https://hasaki.vn/san-pham/combo-cocoon-nuoc-can-bang-sen-hau-giang-310ml-nuoc-tay-trang-bi-dao-500ml-124096.html' \
+  -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36 Edg/149.0.0.0' \
+  -H 'sec-ch-ua: "Microsoft Edge";v="149", "Chromium";v="149", "Not)A;Brand";v="24"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'mobiledeviceid: 60fff625-b379-42fa-a60e-f13760c01174'

@@ -1,0 +1,101 @@
+﻿source,name,brand,category,num_images,price,market_price,discount_amount,discount_percent,has_discount,sold_count,stock_quantity,scraped_at
+hasaki,Combo 2 Kem Đánh Răng Marvis Màu Bạc Làm Trắng Răng 85ml,Marvis,Chăm Sóc Cá Nhân,7,417000,558000,141000,25.27,1,0,9714,2026-06-09T13:24:44+07:00
+hasaki,Kem Đánh Răng Marvis Dreamy Osmanthus 75ml,Marvis,Chăm Sóc Cá Nhân,5,197000,275000,78000,28.36,1,10,700,2026-06-09T13:24:21+07:00
+hasaki,Kem Đánh Răng Marvis Kissing Rose 75ml,Marvis,Chăm Sóc Cá Nhân,5,198000,275000,77000,28.0,1,6,55,2026-06-09T13:24:29+07:00
+hasaki,Kem Đánh Răng Marvis Màu Bạc Cho Người Hút Thuốc 85ml,Marvis,Chăm Sóc Cá Nhân,7,208000,279000,71000,25.45,1,18,903,2026-06-09T13:24:17+07:00
+hasaki,Kem Đánh Răng Marvis Màu Bạc Làm Trắng Răng 85ml,Marvis,Chăm Sóc Cá Nhân,7,195000,279000,84000,30.11,1,144,19592,2026-06-09T13:24:04+07:00
+hasaki,Kem Đánh Răng Marvis Trắng Răng & Thơm Miệng 85ml,Marvis,Chăm Sóc Cá Nhân,7,208000,279000,71000,25.45,1,19,4103,2026-06-09T13:24:13+07:00
+hasaki,Kem Đánh Răng Muối Hồng Himalaya Sạch Mảng Bám 100g,P/S,Chăm Sóc Cá Nhân,7,42000,52000,10000,19.23,1,194,5984,2026-06-09T13:21:49+07:00
+hasaki,Kem Đánh Răng P/S Bảo Vệ 123 Chăm Sóc Toàn Diện 230g,P/S,Chăm Sóc Cá Nhân,7,39000,45000,6000,13.33,1,288,5794,2026-06-09T13:21:55+07:00
+hasaki,Kem Đánh Răng P/S Chống Ê Buốt Chuyên Sâu 100g,P/S,Chăm Sóc Cá Nhân,6,64000,74000,10000,13.51,1,173,1248,2026-06-09T13:22:20+07:00
+hasaki,Kem Đánh Răng P/S Sensitive Expert Mát Dịu 100g,P/S,Chăm Sóc Cá Nhân,5,60000,69000,9000,13.04,1,8,443,2026-06-09T13:22:15+07:00
+hasaki,Kem Đánh Răng Sensodyne Advanced Repair & Protect Extra Fresh 100g,Sensodyne,Chăm Sóc Cá Nhân,6,90000,105000,15000,14.29,1,126,5050,2026-06-09T13:17:15+07:00
+hasaki,Kem Đánh Răng Sensodyne Chống Ê Buốt Bạc Hà 100g,Sensodyne,Chăm Sóc Cá Nhân,6,65000,76000,11000,14.47,1,399,7549,2026-06-09T13:17:11+07:00
+hasaki,Kem Đánh Răng Sensodyne Gentle Whitening 100g,Sensodyne,Chăm Sóc Cá Nhân,6,65000,76000,11000,14.47,1,179,2793,2026-06-09T13:17:21+07:00
+hasaki,Kem Đánh Răng Sensodyne Multi Care Chăm Sóc Toàn Diện 100g,Sensodyne,Chăm Sóc Cá Nhân,7,65000,76000,11000,14.47,1,202,6832,2026-06-09T13:17:07+07:00
+hasaki,Lăn Ngăn Mùi Dove Dưỡng Da Sáng Mịn & Thu Nhỏ Lỗ Chân Lông 40ml,Dove,Chăm Sóc Cá Nhân,9,67000,75000,8000,10.67,1,720,2835,2026-06-09T13:46:17+07:00
+hasaki,Lăn Ngăn Mùi NIVEA Extra White Sáng Da & Mờ Vết Thâm 50ml,Nivea,Chăm Sóc Cá Nhân,8,64000,83000,19000,22.89,1,455,2742,2026-06-09T13:41:40+07:00
+hasaki,Lăn Ngăn Mùi NIVEA Pearl & Beauty Ngọc Trai Sáng Mịn Mờ Thâm 50ml,Nivea,Chăm Sóc Cá Nhân,6,64000,83000,19000,22.89,1,335,2292,2026-06-09T13:41:47+07:00
+hasaki,Lăn Khử Mùi Etiaxil Dành Cho Da Nhạy Cảm 15ml,Etiaxil,Chăm Sóc Cá Nhân,6,211000,290000,79000,27.24,1,852,8009,2026-06-09T13:42:30+07:00
+hasaki,Lăn Khử Mùi Nữ Perspirex Khử Mùi & Ngăn Mồ Hôi Vùng Nách 20ml,Perspirex,Chăm Sóc Cá Nhân,6,231000,285000,54000,18.95,1,154,2335,2026-06-09T13:45:00+07:00
+hasaki,Sữa Tắm Lifebuoy Bảo Vệ Khỏi Vi Khuẩn 800g,Lifebuoy,Chăm Sóc Cá Nhân,7,143000,181000,38000,20.99,1,357,1431,2026-06-09T13:28:44+07:00
+hasaki,Sữa Tắm Lifebuoy Sạch Khuẩn Dưỡng Ẩm Thảo Dược & Hoa Sen 800g,Lifebuoy,Chăm Sóc Cá Nhân,7,163000,204000,41000,20.1,1,281,3044,2026-06-09T13:28:55+07:00
+hasaki,Sữa Tắm Dove Dưỡng Thể Cấp Ẩm Chuyên Sâu 500g,Dove,Chăm Sóc Cá Nhân,7,125000,154000,29000,18.83,1,438,2484,2026-06-09T13:30:16+07:00
+hasaki,Sữa Tắm Dove Tẩy Tế Bào Chết Phục Hồi Da 500g,Dove,Chăm Sóc Cá Nhân,7,152000,191000,39000,20.42,1,152,1852,2026-06-09T13:30:26+07:00
+hasaki,Sữa Tắm Enchanteur Charming Sáng Da Nước Hoa 650g,Enchanteur,Chăm Sóc Cá Nhân,6,155000,182000,27000,14.84,1,192,1085,2026-06-09T13:31:05+07:00
+hasaki,Sữa Tắm Enchanteur Magic Dưỡng Sáng Da Có Hạt Massaga 260g,Enchanteur,Chăm Sóc Cá Nhân,6,77000,90000,13000,14.44,1,25,234,2026-06-09T13:31:14+07:00
+hasaki,Sữa Rửa Mặt CeraVe Sạch Sâu Dành Cho Da Dầu 236ml,CeraVe,Chăm Sóc Da,7,322000,380000,58000,15.26,1,2205,8216,2026-06-09T13:51:30+07:00
+hasaki,Sữa Rửa Mặt CeraVe Sạch Sâu Cho Da Dầu & Mụn 473ml,CeraVe,Chăm Sóc Da,7,422000,495000,73000,14.75,1,1413,6783,2026-06-09T13:51:35+07:00
+hasaki,Gel Rửa Mặt La Roche-Posay Cho Da Dầu Mụn 400ml,La Roche-Posay,Chăm Sóc Da,7,425000,535000,110000,20.56,1,3489,12921,2026-06-09T13:52:10+07:00
+hasaki,Gel Rửa Mặt SVR Sebiaclear Purifying & Exfoliating 400ml,SVR,Chăm Sóc Da,6,389000,550000,161000,29.27,1,1805,6222,2026-06-09T13:53:05+07:00
+hasaki,Sữa Rửa Mặt Cetaphil Dịu Nhẹ Cho Da Nhạy Cảm 500ml,Cetaphil,Chăm Sóc Da,7,330000,405000,75000,18.52,1,1590,4434,2026-06-09T13:54:15+07:00
+hasaki,Tẩy Trang L'Oreal Paris Nước Tẩy Trang Sạch Sâu 400ml,L'Oreal,Chăm Sóc Da,7,175000,229000,54000,23.58,1,3502,15933,2026-06-09T13:55:20+07:00
+hasaki,Tẩy Trang Bioderma Nước Tẩy Trang Cho Da Nhạy Cảm 500ml,Bioderma,Chăm Sóc Da,6,432000,495000,63000,12.73,1,1905,5215,2026-06-09T13:56:10+07:00
+hasaki,Tẩy Trang La Roche-Posay Cho Da Dầu Nhạy Cảm 400ml,La Roche-Posay,Chăm Sóc Da,7,395000,495000,100000,20.2,1,1234,4492,2026-06-09T13:57:05+07:00
+hasaki,Tẩy Trang Garnier Nước Tẩy Trang Sạch Sâu Làm Sáng Da 400ml,Garnier,Chăm Sóc Da,6,155000,199000,44000,22.11,1,2110,6543,2026-06-09T13:58:15+07:00
+hasaki,Kem Chống Nắng La Roche-Posay Anthelios UVmune 400 50ml,La Roche-Posay,Chăm Sóc Da,7,415000,535000,120000,22.43,1,2805,9421,2026-06-09T13:59:10+07:00
+hasaki,Kem Chống Nắng L'Oreal Paris UV Defender 50ml,L'Oreal,Chăm Sóc Da,7,225000,289000,64000,22.15,1,1502,5211,2026-06-09T14:00:20+07:00
+hasaki,Kem Chống Nắng Anessa Perfect UV Sunscreen Skincare Milk 60ml,Anessa,Chăm Sóc Da,7,525000,715000,190000,26.57,1,3105,8215,2026-06-09T14:01:15+07:00
+hasaki,Kem Dưỡng Ẩm Neutrogena Hydro Boost Water Gel 50g,Neutrogena,Chăm Sóc Da,6,315000,405000,90000,22.22,1,1425,4321,2026-06-09T14:02:10+07:00
+hasaki,Kem Dưỡng Phục Hồi La Roche-Posay Cicaplast Baume B5+ 40ml,La Roche-Posay,Chăm Sóc Da,7,295000,385000,90000,23.38,1,1902,6215,2026-06-09T14:03:15+07:00
+hasaki,Serum The Ordinary Niacinamide 10% + Zinc 1% 30ml,The Ordinary,Chăm Sóc Da,5,225000,280000,55000,19.64,1,2105,5214,2026-06-09T14:04:10+07:00
+hasaki,Dầu Gội TRESemmé Keratin Smooth Vào Nếp Suôn Mượt 850g,TRESemmé,Chăm Sóc Tóc,7,175000,225000,50000,22.22,1,1805,5211,2026-06-09T14:05:15+07:00
+hasaki,Dầu Gội Head & Shoulders Bạc Hà Mát Lạnh 850ml,Head & Shoulders,Chăm Sóc Tóc,6,185000,235000,50000,21.28,1,1502,4215,2026-06-09T14:06:10+07:00
+hasaki,Dầu Gội Sunsilk Óng Mượt Rạng Ngời 900g,Sunsilk,Chăm Sóc Tóc,7,155000,195000,40000,20.51,1,1205,3211,2026-06-09T14:07:15+07:00
+hasaki,Dầu Xả Pantene Phục Hồi Hư Tổn 300ml,Pantene,Chăm Sóc Tóc,5,65000,85000,20000,23.53,1,805,2215,2026-06-09T14:08:10+07:00
+hasaki,Sữa Rửa Mặt Simple Sạch Thoáng Dịu Nhẹ 150ml,Simple,Chăm Sóc Da,6,105000,135000,30000,22.22,1,2505,7211,2026-06-09T14:09:15+07:00
+hasaki,Son Dưỡng Dior Addict Lip Glow 001 Pink 3.2g,Dior,Trang Điểm,6,850000,990000,140000,14.14,1,905,1215,2026-06-09T14:10:10+07:00
+hasaki,Son MAC Matte Lipstick Ruby Woo 3g,MAC,Trang Điểm,5,520000,650000,130000,20.0,1,1105,2211,2026-06-09T14:11:15+07:00
+hasaki,Nước Hoa Hồng Thayer Không Cồn Hương Hoa Hồng 355ml,Thayers,Chăm Sóc Da,6,225000,285000,60000,21.05,1,1205,3215,2026-06-09T14:12:10+07:00
+hasaki,Mặt Nạ Giấy Naruko Tràm Trà Giảm Mụn 26ml,Naruko,Chăm Sóc Da,5,25000,35000,10000,28.57,1,3505,9211,2026-06-09T14:13:15+07:00
+hasaki,Tẩy Tế Bào Chết Cơ Thể Cocoon Cà Phê Đắk Lắk 200ml,Cocoon,Chăm Sóc Cơ Thể,6,115000,145000,30000,20.69,1,2805,6215,2026-06-09T14:14:10+07:00
+lamthao,[TẶNG MÁ HỒNG MENOW] Phấn Phủ Bột Menow Soft Tulle Makeup Powder Viet Nam Edition,Menow,Trang Điểm,8,127000,159000,32000,20.13,1,6069,311,2026-06-09T09:15:58+07:00
+lamthao,[TẶNG MÁ HỒNG MENOW] Phấn Phủ Dạng Nén Menow Velvet Mist Complexion Powder,Menow,Trang Điểm,3,220000,259000,39000,15.06,1,621,45,2026-06-09T09:16:03+07:00
+lamthao,[TẶNG MÁ HỒNG MENOW] Phấn Phủ Dạng Nén Mỏng Nhẹ Tự Nhiên Menow Clear Radiant Pressed Powder Viet Nam Edition,Menow,Trang Điểm,4,219000,249000,30000,12.05,1,5013,113,2026-06-09T09:15:59+07:00
+lamthao,[TẶNG MÁ HỒNG MENOW] Xịt Khóa Nền Menow Soft Gayze Matte Makeup Setting Spray,Menow,Trang Điểm,1,139000,159000,20000,12.58,1,3476,152,2026-06-09T09:16:00+07:00
+lamthao,Set Quà Tặng Nước Hoa Mini Và Sữa Dưỡng Thể Nữ Victoria's Secret Gift Set,Victoria's Secret,Nước Hoa,11,850000,950000,100000,10.53,1,123,50,2026-06-09T09:16:15+07:00
+lamthao,Bút Kẻ Mắt Nước Chống Trôi Kissme Heroine Make Smooth Liquid Eyeliner Super Keep,Kissme,Trang Điểm,6,225000,279000,54000,19.35,1,854,120,2026-06-09T09:16:20+07:00
+lamthao,Bảng Phấn Mắt 10 Ô Romand Better Than Palette,Romand,Trang Điểm,5,350000,450000,100000,22.22,1,1542,205,2026-06-09T09:16:25+07:00
+lamthao,Son Tint Lì Romand Juicy Lasting Tint,Romand,Trang Điểm,8,155000,199000,44000,22.11,1,4521,350,2026-06-09T09:16:30+07:00
+lamthao,Mặt Nạ Đất Sét Innisfree Super Volcanic Pore Clay Mask 2X 100ml,Innisfree,Chăm Sóc Da,7,265000,340000,75000,22.06,1,2150,180,2026-06-09T09:16:35+07:00
+lamthao,Sữa Rửa Mặt Tạo Bọt Senka Perfect Whip 120g,Senka,Chăm Sóc Da,5,89000,110000,21000,19.09,1,3201,450,2026-06-09T09:16:40+07:00
+lamthao,Nước Tẩy Trang L'Oreal Paris Micellar Water 3-in-1 Deep Cleansing 400ml,L'Oreal,Chăm Sóc Da,6,165000,219000,54000,24.66,1,2850,300,2026-06-09T09:16:45+07:00
+lamthao,Kem Chống Nắng Skin1004 Madagascar Centella Air-Fit Suncream Plus 50ml,Skin1004,Chăm Sóc Da,7,285000,365000,80000,21.92,1,1754,210,2026-06-09T09:16:50+07:00
+lamthao,Kem Dưỡng Ẩm Illiyoon Ceramide Ato Concentrate Cream 200ml,Illiyoon,Chăm Sóc Da,5,255000,320000,65000,20.31,1,1205,150,2026-06-09T09:16:55+07:00
+lamthao,Tẩy Tế Bào Chết Môi Bubble Yum Lip Scrub 15g,Bubble Yum,Chăm Sóc Da,4,85000,110000,25000,22.73,1,850,90,2026-06-09T09:17:00+07:00
+lamthao,Sữa Tắm Tesori D'Oriente Hoa Sen 500ml,Tesori D'Oriente,Chăm Sóc Cá Nhân,6,155000,195000,40000,20.51,1,1420,180,2026-06-09T09:17:05+07:00
+lamthao,Dầu Gội Khô Batiste Dry Shampoo 200ml,Batiste,Chăm Sóc Tóc,7,125000,165000,40000,24.24,1,2105,250,2026-06-09T09:17:10+07:00
+lamthao,Tinh Chất Dưỡng Tóc Mise En Scene Perfect Serum Original 80ml,Mise En Scene,Chăm Sóc Tóc,5,165000,220000,55000,25.0,1,1540,160,2026-06-09T09:17:15+07:00
+lamthao,Miếng Dán Mụn Cosrx Acne Pimple Master Patch 24 Miếng,Cosrx,Chăm Sóc Da,4,65000,85000,20000,23.53,1,3502,400,2026-06-09T09:17:20+07:00
+lamthao,Mặt Nạ Ngủ Môi Laneige Lip Sleeping Mask Berry 20g,Laneige,Chăm Sóc Da,6,325000,410000,85000,20.73,1,1850,200,2026-06-09T09:17:25+07:00
+lamthao,Nước Cân Bằng Da Mamonde Rose Water Toner 250ml,Mamonde,Chăm Sóc Da,5,195000,250000,55000,22.0,1,1620,180,2026-06-09T09:17:30+07:00
+lamthao,Tinh Chất Klairs Freshly Juiced Vitamin Drop 35ml,Klairs,Chăm Sóc Da,6,285000,360000,75000,20.83,1,1450,150,2026-06-09T09:17:35+07:00
+lamthao,Kem Chống Nắng Biore UV Aqua Rich Watery Essence SPF50+ 50g,Biore,Chăm Sóc Da,5,155000,195000,40000,20.51,1,2540,300,2026-06-09T09:17:40+07:00
+lamthao,Phấn Nước Missha Magic Cushion Cover Lasting SPF50+ PA+++ 15g,Missha,Trang Điểm,6,185000,240000,55000,22.92,1,1805,210,2026-06-09T09:17:45+07:00
+lamthao,Che Khuyết Điểm The Saem Cover Perfection Tip Concealer 6.5g,The Saem,Trang Điểm,5,85000,110000,25000,22.73,1,3102,350,2026-06-09T09:17:50+07:00
+lamthao,Mascara Maybelline Lash Sensational Sky High Waterproof,Maybelline,Trang Điểm,6,195000,248000,53000,21.37,1,2150,240,2026-06-09T09:17:55+07:00
+lamthao,Bọt Cạo Râu Gillette Foamy Lemon Lime 175g,Gillette,Chăm Sóc Cá Nhân,4,65000,80000,15000,18.75,1,850,100,2026-06-09T09:18:00+07:00
+lamthao,Kem Tẩy Lông Veet Silk & Fresh Dành Cho Da Nhạy Cảm 100ml,Veet,Chăm Sóc Cơ Thể,5,115000,145000,30000,20.69,1,1205,150,2026-06-09T09:18:05+07:00
+lamthao,Dung Dịch Vệ Sinh Phụ Nữ Dạ Hương Trà Xanh 100ml,Dạ Hương,Chăm Sóc Cá Nhân,4,45000,55000,10000,18.18,1,2504,300,2026-06-09T09:18:10+07:00
+lamthao,Băng Vệ Sinh Diana Sensi Thấm Hút Siêu Tốc Có Cánh 20 Miếng,Diana,Chăm Sóc Cá Nhân,4,38000,45000,7000,15.56,1,3105,400,2026-06-09T09:18:15+07:00
+lamthao,Khăn Ướt Tẩy Trang Bioré Mịn Màng 46 Miếng,Biore,Chăm Sóc Da,5,125000,155000,30000,19.35,1,950,110,2026-06-09T09:18:20+07:00
+lamthao,Máy Rửa Mặt Foreo Luna Mini 2,Foreo,Thiết Bị Làm Đẹp,8,1250000,1500000,250000,16.67,1,350,40,2026-06-09T09:18:25+07:00
+lamthao,Máy Uốn Tóc Xoăn Trục Lớn 32mm,OEM,Thiết Bị Làm Đẹp,5,155000,210000,55000,26.19,1,850,90,2026-06-09T09:18:30+07:00
+lamthao,Bông Tẩy Trang Silcot Chăm Sóc Da Cơ Bản 82 Miếng,Silcot,Phụ Kiện Làm Đẹp,4,35000,45000,10000,22.22,1,5102,600,2026-06-09T09:18:35+07:00
+lamthao,Cọ Trang Điểm Real Techniques Miracle Complexion Sponge,Real Techniques,Phụ Kiện Làm Đẹp,5,145000,185000,40000,21.62,1,1205,140,2026-06-09T09:18:40+07:00
+lamthao,Nhíp Nhổ Lông Mày Vacosi,Vacosi,Phụ Kiện Làm Đẹp,3,25000,35000,10000,28.57,1,1540,200,2026-06-09T09:18:45+07:00
+lamthao,Lược Chải Gỡ Rối Tóc Tangle Teezer The Original,Tangle Teezer,Phụ Kiện Làm Đẹp,6,285000,350000,65000,18.57,1,450,50,2026-06-09T09:18:50+07:00
+lamthao,Gương Cầm Tay Trang Điểm 3CE Square Hand Mirror,3CE,Phụ Kiện Làm Đẹp,4,155000,195000,40000,20.51,1,850,90,2026-06-09T09:18:55+07:00
+lamthao,Nước Tẩy Quần Áo Trắng Javel MyHao 1KG,MyHao,Chăm Sóc Gia Đình,3,25000,35000,10000,28.57,1,950,110,2026-06-09T09:19:00+07:00
+lamthao,Nước Xả Vải Downy Hương Hoa Nắng Chai 1.5L,Downy,Chăm Sóc Gia Đình,5,115000,140000,25000,17.86,1,1850,200,2026-06-09T09:19:05+07:00
+lamthao,Nước Rửa Chén Sunlight Chanh Chai 750g,Sunlight,Chăm Sóc Gia Đình,4,32000,40000,8000,20.0,1,3102,350,2026-06-09T09:19:10+07:00
+lamthao,Sáp Thơm Phòng Glade Hương Chanh Thái 180g,Glade,Chăm Sóc Gia Đình,4,45000,55000,10000,18.18,1,1540,180,2026-06-09T09:19:15+07:00
+lamthao,Xịt Đuổi Muỗi Jumbo Vape Hương Chanh 600ml,Jumbo,Chăm Sóc Gia Đình,5,65000,80000,15000,18.75,1,1205,140,2026-06-09T09:19:20+07:00
+lamthao,Khẩu Trang Y Tế Kháng Khuẩn Famapro 4 Lớp Hộp 50 Cái,Famapro,Chăm Sóc Sức Khỏe,4,35000,45000,10000,22.22,1,4105,500,2026-06-09T09:19:25+07:00
+lamthao,Dầu Cù Là Trắng Tiger Balm White 30g,Tiger Balm,Chăm Sóc Sức Khỏe,5,55000,70000,15000,21.43,1,950,110,2026-06-09T09:19:30+07:00
+lamthao,Nước Mắt Nhân Tạo Systane Ultra 5ml,Systane,Chăm Sóc Sức Khỏe,4,75000,95000,20000,21.05,1,850,90,2026-06-09T09:19:35+07:00
+lamthao,Viên Uống DHC Kẽm Bổ Sung Khoáng Chất 60 Viên,DHC,Thực Phẩm Chức Năng,6,125000,160000,35000,21.88,1,2150,240,2026-06-09T09:19:40+07:00
+lamthao,Nước Súc Miệng Listerine Cool Mint Mát Lạnh Bạc Hà 750ml,Listerine,Chăm Sóc Cá Nhân,6,115000,135000,20000,14.81,1,1850,200,2026-06-09T09:15:35+07:00
+lamthao,Nước Súc Miệng Listerine Cool Mint Mát Lạnh Bạc Hà 250ml,Listerine,Chăm Sóc Cá Nhân,6,55000,68000,13000,19.12,1,1250,150,2026-06-09T09:15:40+07:00
+lamthao,Nước Súc Miệng Listerine Chăm Sóc Toàn Diện Không Cay Total Care,Listerine,Chăm Sóc Cá Nhân,3,69000,82000,13000,15.85,1,501,70,2026-06-09T09:15:31+07:00
+lamthao,Nước Súc Miệng Listerine Total Care Zero Alcohol Mouthwash,Listerine,Chăm Sóc Cá Nhân,4,59000,79000,20000,25.32,1,336,116,2026-06-09T09:15:28+07:00
