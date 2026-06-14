@@ -4,72 +4,88 @@ import pandas as pd
 DRILL_HOST = "192.168.150.178" 
 DRILL_PORT = 8047
 
+def execute_drill_query(sql_query, task_name=""):
+    """Hàm lõi gọi API Drill dùng chung cho tất cả các bài toán"""
+    url = f"http://{DRILL_HOST}:{DRILL_PORT}/query.json"
+    payload = {"queryType": "SQL", "query": sql_query}
+    headers = {"Content-Type": "application/json"}
+    
+    try:
+        response = requests.post(url, json=payload, headers=headers, timeout=10)
+        if response.status_code == 200:
+            data = response.json().get('rows', [])
+            if len(data) > 0:
+                print(f"[{task_name}] THÀNH CÔNG: Lấy được {len(data)} dòng dữ liệu.")
+                return pd.DataFrame(data)
+            else:
+                print(f"[{task_name}] CẢNH BÁO: Chưa có dữ liệu trên HDFS (Thư mục rỗng).")
+        else:
+            print(f"[{task_name}] LỖI TỪ DRILL: {response.text}")
+    except Exception as e:
+        print(f"[{task_name}] Lỗi mạng/Timeout: {e}")
+    
+    return pd.DataFrame()
+
 def get_oos_rate_data():
-    # Lưu ý: Cần kiểm tra kỹ tên file part-00000 hay part-r-00000
     sql = """
-        SELECT columns[0] AS category_name, 
-               columns[3] AS oos_rate 
+        SELECT columns[0] AS category_name, columns[3] AS oos_rate 
         FROM table(dfs.`/data/bigdata_ecommerce/mapreduce_output/9_oos_rate_python/part-00000`(type => 'text', fieldDelimiter => ',', extractHeader => false))
         WHERE columns[0] <> 'category_name'
     """
-    
-    url = f"http://{DRILL_HOST}:{DRILL_PORT}/query.json"
-    payload = {"queryType": "SQL", "query": sql}
-    headers = {"Content-Type": "application/json"}
+    df = execute_drill_query(sql, "Tỷ lệ cháy hàng")
+    if not df.empty:
+        df['oos_rate'] = pd.to_numeric(df['oos_rate'])
+    return df
 
-    try:
-        print("⏳ Đang gọi dữ liệu từ Apache Drill...")
-        response = requests.post(url, json=payload, headers=headers, timeout=30)
-        
-        # Nếu thành công 100%
-        if response.status_code == 200:
-            data = response.json().get('rows', [])
-            if len(data) > 0:
-                print(f"THÀNH CÔNG: Lấy được {len(data)} dòng dữ liệu từ HDFS!")
-                df = pd.DataFrame(data)
-                df['oos_rate'] = pd.to_numeric(df['oos_rate'])
-                return df
-            else:
-                print("CẢNH BÁO: Drill chạy thành công nhưng file không có dữ liệu (0 dòng).")
-        # Nếu SQL sai hoặc đường dẫn sai
-        else:
-            print(f"LỖI TỪ DRILL (Mã {response.status_code}): {response.text}")
-            
-    except Exception as e:
-        print(f"Lỗi mạng/Timeout: {e}")
-    
-    return pd.DataFrame()
-
-# ================= 2. HÀM LẤY DỮ LIỆU ĐỘ CO GIÃN THEO GIÁ =================
 def get_price_elasticity_data():
     sql = """
-        SELECT columns[0] AS price_bucket, 
-               columns[1] AS total_sold_volume 
+        SELECT columns[0] AS price_bucket, columns[1] AS total_sold_volume 
         FROM table(dfs.`/data/bigdata_ecommerce/mapreduce_output/10_price_elasticity_python/part-00000`(type => 'text', fieldDelimiter => ',', extractHeader => false))
         WHERE columns[0] <> 'price_bucket'
     """
-    
-    url = f"http://{DRILL_HOST}:{DRILL_PORT}/query.json"
-    payload = {"queryType": "SQL", "query": sql}
-    headers = {"Content-Type": "application/json"}
+    df = execute_drill_query(sql, "Độ co giãn giá")
+    if not df.empty:
+        df['total_sold_volume'] = pd.to_numeric(df['total_sold_volume'])
+    return df
 
-    try:
-        print("⏳ Đang gọi dữ liệu Độ co giãn giá từ Apache Drill...")
-        response = requests.post(url, json=payload, headers=headers, timeout=30)
-        
-        if response.status_code == 200:
-            data = response.json().get('rows', [])
-            if len(data) > 0:
-                print(f"THÀNH CÔNG: Lấy được {len(data)} dòng dữ liệu Độ co giãn giá!")
-                df = pd.DataFrame(data)
-                df['total_sold_volume'] = pd.to_numeric(df['total_sold_volume'])
-                return df
-            else:
-                print("CẢNH BÁO (Độ co giãn): Drill chạy thành công nhưng file không có dữ liệu (0 dòng).")
-        else:
-            print(f"LỖI TỪ DRILL (Độ co giãn - Mã {response.status_code}): {response.text}")
-            
-    except Exception as e:
-        print(f"Lỗi mạng/Timeout (Độ co giãn): {e}")
-    
-    return pd.DataFrame()
+def get_t1_brand_comparison():
+    sql = """
+        SELECT columns[0] as category, columns[1] as winning_brand, CAST(columns[2] AS INT) as max_sold 
+        FROM table(dfs.`/output/mr_category_better`(type => 'text', fieldDelimiter => ',', extractHeader => false))
+    """
+    return execute_drill_query(sql, "Bài 1: So sánh thương hiệu")
+
+def get_t2_image_impact():
+    sql = """
+        SELECT columns[0] as price_tier, CAST(columns[1] AS INT) as num_images, CAST(columns[2] AS FLOAT) as avg_sold_count 
+        FROM table(dfs.`/output/mr_price_image_impact`(type => 'text', fieldDelimiter => ',', extractHeader => false))
+    """
+    return execute_drill_query(sql, "Bài 2: Tác động hình ảnh")
+
+def get_t3_bcg_matrix():
+    sql = """
+        SELECT columns[0] as brand, columns[1] as product_name, CAST(columns[2] AS INT) as sold_count, CAST(columns[3] AS FLOAT) as discount_percent 
+        FROM table(dfs.`/output/mr_bcg_matrix`(type => 'text', fieldDelimiter => ',', extractHeader => false))
+    """
+    return execute_drill_query(sql, "Bài 3: Ma trận BCG")
+
+def get_t4_top10_oos():
+    sql = """
+        SELECT columns[0] as brand, columns[1] as product_name, CAST(columns[2] AS INT) as sold_count, CAST(columns[3] AS FLOAT) as discount_percent
+        FROM table(dfs.`/output/mr_top10_outofstock`(type => 'text', fieldDelimiter => ',', extractHeader => false))
+    """
+    return execute_drill_query(sql, "Bài 4: Top 10 đứt gãy")
+
+def get_t5_inventory_capital():
+    sql = """
+        SELECT columns[0] as category, columns[1] as brand, CAST(columns[2] AS INT) as total_stock, CAST(columns[3] AS FLOAT) as total_capital 
+        FROM table(dfs.`/output/mr_inventory_capital`(type => 'text', fieldDelimiter => ',', extractHeader => false))
+    """
+    return execute_drill_query(sql, "Bài 5: Vốn ngâm")
+
+def get_t6_revenue_discount():
+    sql = """
+        SELECT columns[0] as brand, CAST(columns[1] AS FLOAT) as total_revenue, CAST(columns[2] AS FLOAT) as avg_discount_percent 
+        FROM table(dfs.`/output/mr_brand_revenue`(type => 'text', fieldDelimiter => ',', extractHeader => false))
+    """
+    return execute_drill_query(sql, "Bài 6: Doanh thu & Tỷ lệ sale")

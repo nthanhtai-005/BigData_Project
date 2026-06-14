@@ -25,7 +25,7 @@ def get_all_from_table(table_name):
             records = cursor.fetchall()
             return records
         except Exception as e:
-            print(f"❌ Lỗi đọc bảng {table_name}: {e}")
+            print(f"Lỗi đọc bảng {table_name}: {e}")
             return []
         finally:
             cursor.close()
@@ -43,7 +43,7 @@ def delete_record(table_name, record_id):
             conn.commit()
             return cursor.rowcount > 0
         except Exception as e:
-            print(f"❌ Lỗi xóa dữ liệu: {e}")
+            print(f"Lỗi xóa dữ liệu: {e}")
             return False
         finally:
             cursor.close()
@@ -62,7 +62,7 @@ def insert_record(table_name, columns, values):
             conn.commit()
             return True
         except Exception as e:
-            print(f"❌ Lỗi thêm dữ liệu: {e}")
+            print(f"Lỗi thêm dữ liệu: {e}")
             return False
         finally:
             cursor.close()
@@ -85,7 +85,7 @@ def update_record(table_name, record_id, columns, values):
             conn.commit()
             return True
         except Exception as e:
-            print(f"❌ Lỗi cập nhật dữ liệu: {e}")
+            print(f"Lỗi cập nhật dữ liệu: {e}")
             return False
         finally:
             cursor.close()

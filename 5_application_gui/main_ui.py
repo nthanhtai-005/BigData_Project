@@ -2,9 +2,15 @@ import customtkinter as ctk
 from tkinter import ttk, messagebox
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from drill_api import get_oos_rate_data, get_price_elasticity_data
+import numpy as np
 
-# IMPORT CÁC HÀM XỬ LÝ DATABASE THẬT
+# IMPORT TOÀN BỘ 8 HÀM TỪ DRILL API
+from drill_api import (get_oos_rate_data, get_price_elasticity_data, 
+                       get_t1_brand_comparison, get_t2_image_impact, 
+                       get_t3_bcg_matrix, get_t4_top10_oos, 
+                       get_t5_inventory_capital, get_t6_revenue_discount)
+
+# IMPORT CÁC HÀM XỬ LÝ DATABASE
 from crud_mysql import get_all_from_table, insert_record, update_record, delete_record
 
 ctk.set_appearance_mode("light")
@@ -20,11 +26,8 @@ DB_SCHEMA = {
 class ECommerceDashboard(ctk.CTk):
     def __init__(self):
         super().__init__()
-        self.title("Data Warehouse Dashboard - Group 10")
-        
-        # Mở full màn hình (Maximized) ngay khi khởi động
+        self.title("Data Warehouse Dashboard - Group 6")
         self.after(0, lambda: self.state('zoomed'))
-        
         self.current_table = "products"
 
         self.setup_sidebar()
@@ -57,10 +60,9 @@ class ECommerceDashboard(ctk.CTk):
             self.crud_frame.pack_forget()
             self.mapreduce_frame.pack(side="right", fill="both", expand=True)
 
-    # ================= 2. KHÔNG GIAN QUẢN LÝ DỮ LIỆU (CRUD) =================
+    # ================= 2. CRUD =================
     def setup_crud_frame(self):
         self.crud_frame = ctk.CTkFrame(self, corner_radius=0, fg_color="transparent")
-
         top_frame = ctk.CTkFrame(self.crud_frame, fg_color="#f8f9fa")
         top_frame.pack(fill="x", padx=20, pady=20)
 
@@ -129,12 +131,10 @@ class ECommerceDashboard(ctk.CTk):
         for item in self.tree.get_children():
             self.tree.delete(item)
 
-        # GỌI HÀM LẤY DỮ LIỆU THẬT TỪ MYSQL
         raw_data = get_all_from_table(self.current_table)
         
         if filter_col and filter_val:
             col_index = cols.index(filter_col)
-            # Lọc dữ liệu bằng Python (so sánh chuỗi)
             data = [row for row in raw_data if filter_val.lower() in str(row[col_index]).lower()]
         else:
             data = raw_data
@@ -158,7 +158,6 @@ class ECommerceDashboard(ctk.CTk):
             self.btn_edit.configure(state="normal")
             self.btn_delete.configure(state="normal")
 
-    # ================= CÁC HÀM POPUP THÊM/SỬA/XÓA ĐỘNG =================
     def open_add_edit_window(self, mode):
         window = ctk.CTkToplevel(self)
         title = f"Thêm dòng mới - [{self.current_table}]" if mode == "ADD" else f"Chỉnh sửa dòng - [{self.current_table}]"
@@ -173,7 +172,7 @@ class ECommerceDashboard(ctk.CTk):
         if mode == "EDIT":
             selected_item = self.tree.focus()
             selected_values = self.tree.item(selected_item, 'values')
-            record_id = selected_values[0] # Lấy ID của dòng đang chọn
+            record_id = selected_values[0]
 
         cols = DB_SCHEMA[self.current_table]["columns"]
         fks = DB_SCHEMA[self.current_table]["foreign_keys"]
@@ -181,7 +180,7 @@ class ECommerceDashboard(ctk.CTk):
         scroll_frame = ctk.CTkScrollableFrame(window, width=450, height=400, fg_color="white")
         scroll_frame.pack(pady=10)
 
-        self.dynamic_inputs = {} # Lưu lại các ô nhập liệu để lấy dữ liệu sau
+        self.dynamic_inputs = {} 
 
         for idx, col in enumerate(cols):
             if col == "id" and mode == "ADD":
@@ -193,13 +192,11 @@ class ECommerceDashboard(ctk.CTk):
 
             if col in fks:
                 ref_table = fks[col]
-                # Lấy dữ liệu KHÓA NGOẠI THẬT từ MySQL
                 fk_records = get_all_from_table(ref_table)
-                fk_data = [f"{r[0]} - {r[1]}" for r in fk_records] # Ví dụ: "1 - Shopee"
+                fk_data = [f"{r[0]} - {r[1]}" for r in fk_records] 
                 
                 inp = ctk.CTkComboBox(row_frame, values=fk_data, width=250)
                 if mode == "EDIT":
-                    # Tìm và set giá trị cũ
                     old_val = selected_values[idx]
                     for fk in fk_data:
                         if fk.startswith(f"{old_val} -"):
@@ -213,7 +210,7 @@ class ECommerceDashboard(ctk.CTk):
                     inp.configure(state="disabled") 
 
             inp.pack(side="left")
-            self.dynamic_inputs[col] = inp # Lưu vào dict
+            self.dynamic_inputs[col] = inp 
 
         btn_text = "LƯU DỮ LIỆU" if mode == "ADD" else "CẬP NHẬT"
         ctk.CTkButton(window, text=btn_text, command=lambda: self.process_save(mode, window, record_id), fg_color="#007bff", hover_color="#0056b3").pack(pady=20)
@@ -226,8 +223,6 @@ class ECommerceDashboard(ctk.CTk):
             if col == "id": continue
             columns.append(col)
             val = inp.get()
-            
-            # Nếu là Khóa ngoại (vd: "1 - Shopee"), ta chỉ bóc lấy số 1
             if col in DB_SCHEMA[self.current_table]["foreign_keys"]:
                 val = val.split(" - ")[0]
             values.append(val)
@@ -240,7 +235,7 @@ class ECommerceDashboard(ctk.CTk):
         if success:
             messagebox.showinfo("Thành công", "Lưu dữ liệu thành công!")
             window.destroy()
-            self.load_table_data() # Nạp lại bảng
+            self.load_table_data() 
         else:
             messagebox.showerror("Thất bại", "Có lỗi xảy ra, vui lòng kiểm tra lại!")
 
@@ -278,76 +273,140 @@ class ECommerceDashboard(ctk.CTk):
         else:
             messagebox.showerror("Thất bại", "Không thể xóa dữ liệu này!")
 
-    # ================= 3. KHÔNG GIAN BÁO CÁO (MAPREDUCE CHARTS) =================
+    # ================= 3.MAPREDUCE CHARTS =================
     def setup_mapreduce_frame(self):
         self.mapreduce_frame = ctk.CTkFrame(self, corner_radius=0, fg_color="transparent")
 
         header_frame = ctk.CTkFrame(self.mapreduce_frame, fg_color="transparent")
         header_frame.pack(fill="x", padx=20, pady=(20, 0))
-        ctk.CTkLabel(header_frame, text="KẾT QUẢ PHÂN TÍCH MAPREDUCE", font=("Arial", 22, "bold"), text_color="black").pack(side="left")
+        ctk.CTkLabel(header_frame, text="KẾT QUẢ PHÂN TÍCH MAPREDUCE (8 BÀI TOÁN)", font=("Arial", 22, "bold"), text_color="black").pack(side="left")
         
-        chart_frame = ctk.CTkFrame(self.mapreduce_frame, fg_color="white")
-        # Đổi pady=(0, 20) thành pady=20 để đồ thị cách đều tiêu đề
+        # SỬ DỤNG CTKSCROLLABLEFRAME ĐỂ CUỘN LÊN XUỐNG
+        chart_frame = ctk.CTkScrollableFrame(self.mapreduce_frame, fg_color="white")
         chart_frame.pack(fill="both", expand=True, padx=20, pady=20) 
 
         self.draw_charts(chart_frame)
 
     def draw_charts(self, parent_frame):
-        # 1. Lấy dữ liệu THẬT từ HDFS thông qua file drill_api
+        # Tăng kích thước (figsize) và khoảng cách (hspace) để các tiêu đề không đè lên nhau
+        fig, axs = plt.subplots(4, 2, figsize=(12, 24), facecolor='#f8f9fa')
+        fig.subplots_adjust(hspace=0.6, wspace=0.3, top=0.95, bottom=0.05)
+
+        # Hàm hiển thị thông báo chờ chung (Đã gộp Title và Text lại gần nhau)
+        def show_empty_state(ax, title):
+            ax.text(0.5, 0.5, 'ĐANG CHỜ KẾT QUẢ MAPREDUCE\n(Chưa có dữ liệu trên HDFS)', 
+                    ha='center', va='center', color='#6c757d', weight='bold')
+            ax.set_title(title, weight='bold', pad=15)
+            ax.axis('off')
+
+        # ================= HÀNG 1 =================
         df_oos = get_oos_rate_data()
-        df_elasticity = get_price_elasticity_data()
-
-        # 2. Cấu hình khung chứa 2 biểu đồ (1 hàng, 2 cột)
-        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4), facecolor='#f8f9fa')
-
-        # ================= ax1: BIỂU ĐỒ TỶ LỆ CHÁY HÀNG (BAR CHART) =================
         if not df_oos.empty:
             categories = df_oos['category_name'].tolist()
             rates = df_oos['oos_rate'].tolist()
-            
-            # Tô đỏ cột nếu tỷ lệ cháy hàng > 20%
             bar_colors = ['#dc3545' if r > 20 else '#17a2b8' for r in rates]
-            
-            ax1.bar(categories, rates, color=bar_colors)
-            ax1.set_title('Cảnh báo: Tỷ lệ Cháy hàng (%)', color='black', pad=15, weight='bold')
-            ax1.tick_params(colors='black')
-            ax1.set_xticks(range(len(categories)))
-            ax1.set_xticklabels(categories, rotation=15, ha='right', fontsize=9) 
+            axs[0, 0].bar(categories, rates, color=bar_colors)
+            axs[0, 0].set_title('1. Cảnh báo: Tỷ lệ Cháy hàng (%)', color='black', weight='bold', pad=15)
+            axs[0, 0].set_xticks(range(len(categories)))
+            axs[0, 0].set_xticklabels(categories, rotation=15, ha='right', fontsize=9) 
         else:
-            ax1.text(0.5, 0.5, 'Chưa kết nối được Drill\nHoặc dữ liệu rỗng', 
-                     ha='center', va='center', color='red', weight='bold')
-            ax1.set_title('Cảnh báo: Tỷ lệ Cháy hàng (%)', color='black')
-            ax1.axis('off')
+            show_empty_state(axs[0, 0], '1. Cảnh báo: Tỷ lệ Cháy hàng (%)')
 
-        # ================= ax2: ĐỘ CO GIÃN THEO GIÁ (AREA CHART) =================
+        df_elasticity = get_price_elasticity_data()
         if not df_elasticity.empty:
             buckets = df_elasticity['price_bucket'].tolist()
             volumes = df_elasticity['total_sold_volume'].tolist()
-            
-            # Vẽ biểu đồ vùng (Area Chart)
-            # alpha=0.3 tạo độ trong suốt cho vùng màu bên dưới đường line
-            ax2.fill_between(buckets, volumes, color="#28a745", alpha=0.3) 
-            ax2.plot(buckets, volumes, color="#28a745", marker='o', linewidth=2, markersize=6)
-            
-            ax2.set_title('Độ Co giãn Cầu theo Phân khúc Giá', color='black', pad=15, weight='bold')
-            ax2.tick_params(colors='black')
-            ax2.set_xticks(range(len(buckets)))
-            ax2.set_xticklabels(buckets, rotation=15, ha='right', fontsize=9)
-            
-            # Hiển thị số liệu trực tiếp trên các điểm của biểu đồ
+            axs[0, 1].fill_between(buckets, volumes, color="#28a745", alpha=0.3) 
+            axs[0, 1].plot(buckets, volumes, color="#28a745", marker='o', linewidth=2, markersize=6)
+            axs[0, 1].set_title('2. Độ Co giãn Cầu theo Phân khúc Giá', color='black', weight='bold', pad=15)
+            axs[0, 1].set_xticks(range(len(buckets)))
+            axs[0, 1].set_xticklabels(buckets, rotation=15, ha='right', fontsize=9)
             for i, txt in enumerate(volumes):
-                ax2.annotate(f"{txt:,}", (buckets[i], volumes[i]), textcoords="offset points", xytext=(0,10), ha='center', fontsize=9)
+                axs[0, 1].annotate(f"{txt:,}", (buckets[i], volumes[i]), textcoords="offset points", xytext=(0,10), ha='center', fontsize=9)
         else:
-            ax2.text(0.5, 0.5, 'Chưa kết nối được Drill\nHoặc dữ liệu rỗng', 
-                     ha='center', va='center', color='red', weight='bold')
-            ax2.set_title('Độ Co giãn Cầu theo Phân khúc Giá', color='black')
-            ax2.axis('off')
+            show_empty_state(axs[0, 1], '2. Độ Co giãn Cầu theo Phân khúc Giá')
+
+        # ================= HÀNG 2 =================
+        df1 = get_t1_brand_comparison()
+        if not df1.empty:
+            colors = ['#f39c12' if b == 'Hasaki' else '#e74c3c' for b in df1['winning_brand']]
+            axs[1, 0].bar(df1['category'], df1['max_sold'], color=colors)
+            axs[1, 0].set_title('3. Quán quân Doanh số theo Danh mục', weight='bold', pad=15)
+            axs[1, 0].set_xticks(range(len(df1['category'])))
+            axs[1, 0].set_xticklabels(df1['category'], rotation=15, ha='right')
+        else:
+            show_empty_state(axs[1, 0], '3. Quán quân Doanh số theo Danh mục')
+
+        df2 = get_t2_image_impact()
+        if not df2.empty:
+            for tier in df2['price_tier'].unique():
+                subset = df2[df2['price_tier'] == tier]
+                axs[1, 1].scatter(subset['num_images'], subset['avg_sold_count'], label=tier, alpha=0.7, s=100)
+            axs[1, 1].set_title('4. Tác động Số ảnh đến Sức mua', weight='bold', pad=15)
+            axs[1, 1].set_xlabel('Số lượng hình ảnh')
+            axs[1, 1].set_ylabel('Lượt bán TB')
+            axs[1, 1].legend()
+        else:
+            show_empty_state(axs[1, 1], '4. Tác động Số ảnh đến Sức mua')
+
+        # ================= HÀNG 3 =================
+        df3 = get_t3_bcg_matrix()
+        if not df3.empty:
+            c = df3['brand'].map({'Hasaki': '#f39c12', 'Lam Thảo': '#e74c3c'})
+            axs[2, 0].scatter(df3['discount_percent'], df3['sold_count'], c=c, alpha=0.6)
+            axs[2, 0].axhline(y=df3['sold_count'].mean(), color='black', linestyle='--') 
+            axs[2, 0].axvline(x=df3['discount_percent'].mean(), color='black', linestyle='--') 
+            axs[2, 0].set_title('5. Phân loại SP - Ma trận BCG', weight='bold', pad=15)
+            axs[2, 0].set_xlabel('Mức giảm giá (%)')
+        else:
+            show_empty_state(axs[2, 0], '5. Phân loại SP - Ma trận BCG')
+
+        df4 = get_t4_top10_oos()
+        if not df4.empty:
+            df4 = df4.sort_values(by='sold_count', ascending=True) 
+            c4 = ['#f39c12' if b == 'Hasaki' else '#e74c3c' for b in df4['brand']]
+            axs[2, 1].barh(df4['product_name'], df4['sold_count'], color=c4)
+            axs[2, 1].set_title('6. Top SP Nhu cầu cao bị Đứt gãy', weight='bold', pad=15)
+        else:
+            show_empty_state(axs[2, 1], '6. Top Sản phẩm Nhu cầu cao bị Đứt gãy')
+
+        # ================= HÀNG 4 =================
+        df5 = get_t5_inventory_capital()
+        if not df5.empty:
+            hasaki_data = df5[df5['brand'] == 'Hasaki']['total_capital'].tolist()
+            lamthao_data = df5[df5['brand'] == 'Lam Thảo']['total_capital'].tolist()
+            categories = df5['category'].unique()
+            
+            x = np.arange(len(categories))
+            width = 0.35
+            axs[3, 0].bar(x - width/2, hasaki_data, width, label='Hasaki', color='#f39c12')
+            axs[3, 0].bar(x + width/2, lamthao_data, width, label='Lam Thảo', color='#e74c3c')
+            axs[3, 0].set_xticks(x)
+            axs[3, 0].set_xticklabels(categories, rotation=15, ha='right')
+            axs[3, 0].set_title('7. Cán cân Vốn Đọng Hàng tồn kho', weight='bold', pad=15)
+            axs[3, 0].legend()
+        else:
+            show_empty_state(axs[3, 0], '7. Cán cân Vốn Đọng Hàng tồn kho')
+
+        df6 = get_t6_revenue_discount()
+        if not df6.empty:
+            ax_left = axs[3, 1]
+            ax_right = ax_left.twinx()
+            
+            ax_left.bar(df6['brand'], df6['total_revenue'], color=['#f39c12', '#e74c3c'], alpha=0.8)
+            ax_right.plot(df6['brand'], df6['avg_discount_percent'], color='blue', marker='o', linewidth=2)
+            
+            ax_left.set_title('8. Tổng Doanh thu vs Tỷ lệ Sale', weight='bold', pad=15)
+            ax_left.set_ylabel('Doanh thu (VND)')
+            ax_right.set_ylabel('% Giảm giá', color='blue')
+        else:
+            show_empty_state(axs[3, 1], '8. Tổng Doanh thu vs Tỷ lệ Sale')
 
         # 3. Đưa biểu đồ lên giao diện CustomTkinter
-        plt.tight_layout() 
         canvas = FigureCanvasTkAgg(fig, master=parent_frame)
         canvas.draw()
-        canvas.get_tk_widget().pack(fill="both", expand=True, padx=10, pady=10)
+        
+        canvas.get_tk_widget().pack(fill="x", expand=False, padx=10, pady=10)
 
 if __name__ == "__main__":
     app = ECommerceDashboard()
