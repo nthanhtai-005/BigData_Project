@@ -51,41 +51,47 @@ def get_price_elasticity_data():
 def get_t1_brand_comparison():
     sql = """
         SELECT columns[0] as category, columns[1] as winning_brand, CAST(columns[2] AS INT) as max_sold 
-        FROM table(dfs.`/output/mr_category_better`(type => 'text', fieldDelimiter => ',', extractHeader => false))
+        FROM table(dfs.`/data/bigdata_ecommerce/mapreduce_output/category_winner`(type => 'text', fieldDelimiter => '\t', extractHeader => false))
     """
     return execute_drill_query(sql, "Bài 1: So sánh thương hiệu")
 
 def get_t2_image_impact():
     sql = """
         SELECT columns[0] as price_tier, CAST(columns[1] AS INT) as num_images, CAST(columns[2] AS FLOAT) as avg_sold_count 
-        FROM table(dfs.`/output/mr_price_image_impact`(type => 'text', fieldDelimiter => ',', extractHeader => false))
+        FROM table(dfs.`/data/bigdata_ecommerce/mapreduce_output/image_impact`(type => 'text', fieldDelimiter => '\t', extractHeader => false))
     """
     return execute_drill_query(sql, "Bài 2: Tác động hình ảnh")
 
 def get_t3_bcg_matrix():
     sql = """
-        SELECT columns[0] as brand, columns[1] as product_name, CAST(columns[2] AS INT) as sold_count, CAST(columns[3] AS FLOAT) as discount_percent 
-        FROM table(dfs.`/output/mr_bcg_matrix`(type => 'text', fieldDelimiter => ',', extractHeader => false))
+        SELECT columns[0] as brand, columns[1] as product_name, CAST(columns[2] AS INT) as sold_count, CAST(columns[3] AS FLOAT) as discount_percent, 'Star' as quadrant
+        FROM table(dfs.`/data/bigdata_ecommerce/mapreduce_output/bcg_matrix/stars`(type => 'text', fieldDelimiter => '\t', extractHeader => false))
+        UNION ALL
+        SELECT columns[0] as brand, columns[1] as product_name, CAST(columns[2] AS INT) as sold_count, CAST(columns[3] AS FLOAT) as discount_percent, 'Cash Cow' as quadrant
+        FROM table(dfs.`/data/bigdata_ecommerce/mapreduce_output/bcg_matrix/cows`(type => 'text', fieldDelimiter => '\t', extractHeader => false))
+        UNION ALL
+        SELECT columns[0] as brand, columns[1] as product_name, CAST(columns[2] AS INT) as sold_count, CAST(columns[3] AS FLOAT) as discount_percent, 'Dog' as quadrant
+        FROM table(dfs.`/data/bigdata_ecommerce/mapreduce_output/bcg_matrix/dogs`(type => 'text', fieldDelimiter => '\t', extractHeader => false))
     """
     return execute_drill_query(sql, "Bài 3: Ma trận BCG")
 
 def get_t4_top10_oos():
     sql = """
-        SELECT columns[0] as brand, columns[1] as product_name, CAST(columns[2] AS INT) as sold_count, CAST(columns[3] AS FLOAT) as discount_percent
-        FROM table(dfs.`/output/mr_top10_outofstock`(type => 'text', fieldDelimiter => ',', extractHeader => false))
+        SELECT columns[0] as brand, columns[1] as product_name, CAST(columns[2] AS INT) as sold_count
+        FROM table(dfs.`/data/bigdata_ecommerce/mapreduce_output/top_10_out_of_stock`(type => 'text', fieldDelimiter => '\t', extractHeader => false))
     """
     return execute_drill_query(sql, "Bài 4: Top 10 đứt gãy")
 
 def get_t5_inventory_capital():
     sql = """
         SELECT columns[0] as category, columns[1] as brand, CAST(columns[2] AS INT) as total_stock, CAST(columns[3] AS FLOAT) as total_capital 
-        FROM table(dfs.`/output/mr_inventory_capital`(type => 'text', fieldDelimiter => ',', extractHeader => false))
+        FROM table(dfs.`/data/bigdata_ecommerce/mapreduce_output/inventory_capital`(type => 'text', fieldDelimiter => '\t', extractHeader => false))
     """
     return execute_drill_query(sql, "Bài 5: Vốn ngâm")
 
 def get_t6_revenue_discount():
     sql = """
         SELECT columns[0] as brand, CAST(columns[1] AS FLOAT) as total_revenue, CAST(columns[2] AS FLOAT) as avg_discount_percent 
-        FROM table(dfs.`/output/mr_brand_revenue`(type => 'text', fieldDelimiter => ',', extractHeader => false))
+        FROM table(dfs.`/data/bigdata_ecommerce/mapreduce_output/brand_revenue`(type => 'text', fieldDelimiter => '\t', extractHeader => false))
     """
     return execute_drill_query(sql, "Bài 6: Doanh thu & Tỷ lệ sale")

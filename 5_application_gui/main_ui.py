@@ -318,36 +318,36 @@ class ECommerceDashboard(ctk.CTk):
             volumes = df_elasticity['total_sold_volume'].tolist()
             axs[0, 1].fill_between(buckets, volumes, color="#28a745", alpha=0.3) 
             axs[0, 1].plot(buckets, volumes, color="#28a745", marker='o', linewidth=2, markersize=6)
-            axs[0, 1].set_title('2. Độ Co giãn Cầu theo Phân khúc Giá', color='black', weight='bold', pad=15)
+            axs[0, 1].set_title('2. Nhu cầu của khách hàng theo Phân khúc giá', color='black', weight='bold', pad=15)
             axs[0, 1].set_xticks(range(len(buckets)))
             axs[0, 1].set_xticklabels(buckets, rotation=15, ha='right', fontsize=9)
             for i, txt in enumerate(volumes):
                 axs[0, 1].annotate(f"{txt:,}", (buckets[i], volumes[i]), textcoords="offset points", xytext=(0,10), ha='center', fontsize=9)
         else:
-            show_empty_state(axs[0, 1], '2. Độ Co giãn Cầu theo Phân khúc Giá')
+            show_empty_state(axs[0, 1], '2. Nhu cầu của khách hàng theo Phân khúc giá')
 
         # ================= HÀNG 2 =================
         df1 = get_t1_brand_comparison()
         if not df1.empty:
             colors = ['#f39c12' if b == 'Hasaki' else '#e74c3c' for b in df1['winning_brand']]
             axs[1, 0].bar(df1['category'], df1['max_sold'], color=colors)
-            axs[1, 0].set_title('3. Quán quân Doanh số theo Danh mục', weight='bold', pad=15)
+            axs[1, 0].set_title('3. Thương hiệu có doanh số cao nhất theo danh mục', weight='bold', pad=15)
             axs[1, 0].set_xticks(range(len(df1['category'])))
             axs[1, 0].set_xticklabels(df1['category'], rotation=15, ha='right')
         else:
-            show_empty_state(axs[1, 0], '3. Quán quân Doanh số theo Danh mục')
+            show_empty_state(axs[1, 0], '3. Thương hiệu có doanh số cao nhất theo danh mục')
 
         df2 = get_t2_image_impact()
         if not df2.empty:
             for tier in df2['price_tier'].unique():
                 subset = df2[df2['price_tier'] == tier]
                 axs[1, 1].scatter(subset['num_images'], subset['avg_sold_count'], label=tier, alpha=0.7, s=100)
-            axs[1, 1].set_title('4. Tác động Số ảnh đến Sức mua', weight='bold', pad=15)
+            axs[1, 1].set_title('4. Tác động số lượng hình ảnh đến lượt mua', weight='bold', pad=15)
             axs[1, 1].set_xlabel('Số lượng hình ảnh')
             axs[1, 1].set_ylabel('Lượt bán TB')
             axs[1, 1].legend()
         else:
-            show_empty_state(axs[1, 1], '4. Tác động Số ảnh đến Sức mua')
+            show_empty_state(axs[1, 1], '4. Tác động số lượng hình ảnh đến lượt mua')
 
         # ================= HÀNG 3 =================
         df3 = get_t3_bcg_matrix()
@@ -373,10 +373,17 @@ class ECommerceDashboard(ctk.CTk):
         # ================= HÀNG 4 =================
         df5 = get_t5_inventory_capital()
         if not df5.empty:
-            hasaki_data = df5[df5['brand'] == 'Hasaki']['total_capital'].tolist()
-            lamthao_data = df5[df5['brand'] == 'Lam Thảo']['total_capital'].tolist()
-            categories = df5['category'].unique()
+            import pandas as pd
             
+            # 1. Pivot dữ liệu: Biến brand thành cột, category thành hàng. Điền 0 vào các ô khuyết thiếu
+            df5_pivot = df5.pivot(index='category', columns='brand', values='total_capital').fillna(0)
+            categories = df5_pivot.index.tolist()
+            
+            # 2. Lấy mảng dữ liệu an toàn (đảm bảo độ dài luôn bằng số lượng categories)
+            hasaki_data = df5_pivot['Hasaki'].tolist() if 'Hasaki' in df5_pivot.columns else [0] * len(categories)
+            lamthao_data = df5_pivot['Lam Thảo'].tolist() if 'Lam Thảo' in df5_pivot.columns else [0] * len(categories)
+            
+            # 3. Vẽ biểu đồ Bar Chart cạnh nhau
             x = np.arange(len(categories))
             width = 0.35
             axs[3, 0].bar(x - width/2, hasaki_data, width, label='Hasaki', color='#f39c12')
@@ -396,11 +403,11 @@ class ECommerceDashboard(ctk.CTk):
             ax_left.bar(df6['brand'], df6['total_revenue'], color=['#f39c12', '#e74c3c'], alpha=0.8)
             ax_right.plot(df6['brand'], df6['avg_discount_percent'], color='blue', marker='o', linewidth=2)
             
-            ax_left.set_title('8. Tổng Doanh thu vs Tỷ lệ Sale', weight='bold', pad=15)
+            ax_left.set_title('8. Tổng doanh thu vs tỷ lệ Sale', weight='bold', pad=15)
             ax_left.set_ylabel('Doanh thu (VND)')
             ax_right.set_ylabel('% Giảm giá', color='blue')
         else:
-            show_empty_state(axs[3, 1], '8. Tổng Doanh thu vs Tỷ lệ Sale')
+            show_empty_state(axs[3, 1], '8. Tổng doanh thu vs tỷ lệ Sale')
 
         # 3. Đưa biểu đồ lên giao diện CustomTkinter
         canvas = FigureCanvasTkAgg(fig, master=parent_frame)
