@@ -6,9 +6,8 @@ import numpy as np
 
 # IMPORT TOÀN BỘ 8 HÀM TỪ DRILL API
 from drill_api import (get_oos_rate_data, get_price_elasticity_data, 
-                       get_t1_brand_comparison, get_t2_image_impact, 
-                       get_t3_bcg_matrix, get_t4_top10_oos, 
-                       get_t5_inventory_capital, get_t6_revenue_discount)
+                       get_category_count_data, get_category_price_data, get_brand_price_compare_data,
+                       get_raw_mapreduce_data, MAPREDUCE_JOBS_CONFIG)
 
 # IMPORT CÁC HÀM XỬ LÝ DATABASE
 from crud_mysql import get_all_from_table, insert_record, update_record, delete_record
@@ -33,6 +32,7 @@ class ECommerceDashboard(ctk.CTk):
         self.setup_sidebar()
         self.setup_crud_frame()
         self.setup_mapreduce_frame()
+        self.setup_raw_data_frame()
 
         self.select_frame("CRUD")
 
@@ -48,17 +48,24 @@ class ECommerceDashboard(ctk.CTk):
 
         self.btn_menu_chart = ctk.CTkButton(self.sidebar_frame, text="📊 Báo cáo MapReduce", command=lambda: self.select_frame("CHART"), fg_color="transparent", text_color="black", hover_color="#dee2e6", anchor="w")
         self.btn_menu_chart.pack(pady=10, padx=20, fill="x")
+        
+        self.btn_menu_raw = ctk.CTkButton(self.sidebar_frame, text="📑 Dữ liệu MapReduce", command=lambda: self.select_frame("RAW"), fg_color="transparent", text_color="black", hover_color="#dee2e6", anchor="w")
+        self.btn_menu_raw.pack(pady=10, padx=20, fill="x")
 
     def select_frame(self, frame_name):
         self.btn_menu_crud.configure(fg_color=("#ced4da" if frame_name == "CRUD" else "transparent"))
         self.btn_menu_chart.configure(fg_color=("#ced4da" if frame_name == "CHART" else "transparent"))
+        self.btn_menu_raw.configure(fg_color=("#ced4da" if frame_name == "RAW" else "transparent")) 
 
+        self.crud_frame.pack_forget()
+        self.mapreduce_frame.pack_forget()
+        self.raw_data_frame.pack_forget()
         if frame_name == "CRUD":
-            self.mapreduce_frame.pack_forget()
             self.crud_frame.pack(side="right", fill="both", expand=True)
-        else:
-            self.crud_frame.pack_forget()
+        elif frame_name == "CHART":
             self.mapreduce_frame.pack(side="right", fill="both", expand=True)
+        elif frame_name == "RAW":
+            self.raw_data_frame.pack(side="right", fill="both", expand=True)
 
     # ================= 2. CRUD =================
     def setup_crud_frame(self):
@@ -288,132 +295,189 @@ class ECommerceDashboard(ctk.CTk):
         self.draw_charts(chart_frame)
 
     def draw_charts(self, parent_frame):
-        # Tăng kích thước (figsize) và khoảng cách (hspace) để các tiêu đề không đè lên nhau
-        fig, axs = plt.subplots(4, 2, figsize=(12, 24), facecolor='#f8f9fa')
-        fig.subplots_adjust(hspace=0.6, wspace=0.3, top=0.95, bottom=0.05)
+        # Đổi cấu trúc thành 5 hàng, 1 cột. Tăng chiều cao (figsize) lên 35 để các biểu đồ rộng rãi
+        fig, axs = plt.subplots(5, 1, figsize=(14, 35), facecolor='#f8f9fa')
+        fig.subplots_adjust(hspace=0.5, top=0.98, bottom=0.02)
 
-        # Hàm hiển thị thông báo chờ chung (Đã gộp Title và Text lại gần nhau)
         def show_empty_state(ax, title):
             ax.text(0.5, 0.5, 'ĐANG CHỜ KẾT QUẢ MAPREDUCE\n(Chưa có dữ liệu trên HDFS)', 
                     ha='center', va='center', color='#6c757d', weight='bold')
             ax.set_title(title, weight='bold', pad=15)
             ax.axis('off')
 
-        # ================= HÀNG 1 =================
+        # === BIỂU ĐỒ 1: TỶ LỆ CHÁY HÀNG ===
         df_oos = get_oos_rate_data()
         if not df_oos.empty:
             categories = df_oos['category_name'].tolist()
             rates = df_oos['oos_rate'].tolist()
             bar_colors = ['#dc3545' if r > 20 else '#17a2b8' for r in rates]
-            axs[0, 0].bar(categories, rates, color=bar_colors)
-            axs[0, 0].set_title('1. Cảnh báo: Tỷ lệ Cháy hàng (%)', color='black', weight='bold', pad=15)
-            axs[0, 0].set_xticks(range(len(categories)))
-            axs[0, 0].set_xticklabels(categories, rotation=15, ha='right', fontsize=9) 
+            axs[0].bar(categories, rates, color=bar_colors)
+            axs[0].set_title('1. Cảnh báo: Tỷ lệ Cháy hàng (%)', color='black', weight='bold', pad=15)
+            axs[0].set_xticks(range(len(categories)))
+            axs[0].set_xticklabels(categories, rotation=15, ha='right', fontsize=10) 
         else:
-            show_empty_state(axs[0, 0], '1. Cảnh báo: Tỷ lệ Cháy hàng (%)')
+            show_empty_state(axs[0], '1. Cảnh báo: Tỷ lệ Cháy hàng (%)')
 
+        # === BIỂU ĐỒ 2: ĐỘ CO GIÃN GIÁ ===
         df_elasticity = get_price_elasticity_data()
         if not df_elasticity.empty:
             buckets = df_elasticity['price_bucket'].tolist()
             volumes = df_elasticity['total_sold_volume'].tolist()
-            axs[0, 1].fill_between(buckets, volumes, color="#28a745", alpha=0.3) 
-            axs[0, 1].plot(buckets, volumes, color="#28a745", marker='o', linewidth=2, markersize=6)
-            axs[0, 1].set_title('2. Nhu cầu của khách hàng theo Phân khúc giá', color='black', weight='bold', pad=15)
-            axs[0, 1].set_xticks(range(len(buckets)))
-            axs[0, 1].set_xticklabels(buckets, rotation=15, ha='right', fontsize=9)
-            for i, txt in enumerate(volumes):
-                axs[0, 1].annotate(f"{txt:,}", (buckets[i], volumes[i]), textcoords="offset points", xytext=(0,10), ha='center', fontsize=9)
+            axs[1].fill_between(buckets, volumes, color="#28a745", alpha=0.3) 
+            axs[1].plot(buckets, volumes, color="#28a745", marker='o', linewidth=2, markersize=6)
+            axs[1].set_title('2. Nhu cầu của khách hàng theo Phân khúc giá', color='black', weight='bold', pad=15)
+            axs[1].set_xticks(range(len(buckets)))
+            axs[1].set_xticklabels(buckets, rotation=15, ha='right', fontsize=10)
         else:
-            show_empty_state(axs[0, 1], '2. Nhu cầu của khách hàng theo Phân khúc giá')
+            show_empty_state(axs[1], '2. Nhu cầu của khách hàng theo Phân khúc giá')
 
-        # ================= HÀNG 2 =================
-        df1 = get_t1_brand_comparison()
-        if not df1.empty:
-            colors = ['#f39c12' if b == 'Hasaki' else '#e74c3c' for b in df1['winning_brand']]
-            axs[1, 0].bar(df1['category'], df1['max_sold'], color=colors)
-            axs[1, 0].set_title('3. Thương hiệu có doanh số cao nhất theo danh mục', weight='bold', pad=15)
-            axs[1, 0].set_xticks(range(len(df1['category'])))
-            axs[1, 0].set_xticklabels(df1['category'], rotation=15, ha='right')
-        else:
-            show_empty_state(axs[1, 0], '3. Thương hiệu có doanh số cao nhất theo danh mục')
-
-        df2 = get_t2_image_impact()
-        if not df2.empty:
-            for tier in df2['price_tier'].unique():
-                subset = df2[df2['price_tier'] == tier]
-                axs[1, 1].scatter(subset['num_images'], subset['avg_sold_count'], label=tier, alpha=0.7, s=100)
-            axs[1, 1].set_title('4. Tác động số lượng hình ảnh đến lượt mua', weight='bold', pad=15)
-            axs[1, 1].set_xlabel('Số lượng hình ảnh')
-            axs[1, 1].set_ylabel('Lượt bán TB')
-            axs[1, 1].legend()
-        else:
-            show_empty_state(axs[1, 1], '4. Tác động số lượng hình ảnh đến lượt mua')
-
-        # ================= HÀNG 3 =================
-        df3 = get_t3_bcg_matrix()
-        if not df3.empty:
-            c = df3['brand'].map({'Hasaki': '#f39c12', 'Lam Thảo': '#e74c3c'})
-            axs[2, 0].scatter(df3['discount_percent'], df3['sold_count'], c=c, alpha=0.6)
-            axs[2, 0].axhline(y=df3['sold_count'].mean(), color='black', linestyle='--') 
-            axs[2, 0].axvline(x=df3['discount_percent'].mean(), color='black', linestyle='--') 
-            axs[2, 0].set_title('5. Phân loại SP - Ma trận BCG', weight='bold', pad=15)
-            axs[2, 0].set_xlabel('Mức giảm giá (%)')
-        else:
-            show_empty_state(axs[2, 0], '5. Phân loại SP - Ma trận BCG')
-
-        df4 = get_t4_top10_oos()
-        if not df4.empty:
-            df4 = df4.sort_values(by='sold_count', ascending=True) 
-            c4 = ['#f39c12' if b == 'Hasaki' else '#e74c3c' for b in df4['brand']]
-            axs[2, 1].barh(df4['product_name'], df4['sold_count'], color=c4)
-            axs[2, 1].set_title('6. Top SP Nhu cầu cao bị Đứt gãy', weight='bold', pad=15)
-        else:
-            show_empty_state(axs[2, 1], '6. Top Sản phẩm Nhu cầu cao bị Đứt gãy')
-
-        # ================= HÀNG 4 =================
-        df5 = get_t5_inventory_capital()
-        if not df5.empty:
-            import pandas as pd
+        # === BIỂU ĐỒ 3 (MỚI): PHÂN BỐ DANH MỤC (PIE CHART) ===
+        df_cat = get_category_count_data()
+        if not df_cat.empty:
+            labels = df_cat['category_name'].tolist()
+            sizes = df_cat['total_products'].tolist()
             
-            # 1. Pivot dữ liệu: Biến brand thành cột, category thành hàng. Điền 0 vào các ô khuyết thiếu
-            df5_pivot = df5.pivot(index='category', columns='brand', values='total_capital').fillna(0)
-            categories = df5_pivot.index.tolist()
+            # XÓA tham số labels=labels để không in chữ lên hình tròn
+            # pctdistance=0.8 để đẩy các con số % ra gần viền ngoài cho thoáng
+            wedges, texts, autotexts = axs[2].pie(
+                sizes, 
+                autopct='%1.1f%%', 
+                startangle=140, 
+                colors=plt.cm.tab20.colors, # Dùng tab20 để có nhiều màu phân biệt tốt hơn cho 10 danh mục
+                pctdistance=0.8
+            )
             
-            # 2. Lấy mảng dữ liệu an toàn (đảm bảo độ dài luôn bằng số lượng categories)
-            hasaki_data = df5_pivot['Hasaki'].tolist() if 'Hasaki' in df5_pivot.columns else [0] * len(categories)
-            lamthao_data = df5_pivot['Lam Thảo'].tolist() if 'Lam Thảo' in df5_pivot.columns else [0] * len(categories)
+            axs[2].set_title('3. Phân bố Số lượng Sản phẩm theo Danh mục', color='black', weight='bold', pad=15)
             
-            # 3. Vẽ biểu đồ Bar Chart cạnh nhau
-            x = np.arange(len(categories))
+            # ĐƯA CHÚ THÍCH RA NGOÀI (BÊN PHẢI)
+            # bbox_to_anchor=(1, 0.5) ghim chú thích vào mép phải của khung biểu đồ
+            axs[2].legend(wedges, labels,
+                          title="Danh mục sản phẩm",
+                          loc="center left",
+                          bbox_to_anchor=(1, 0.5),
+                          fontsize=10,
+                          title_fontsize=11)
+        else:
+            show_empty_state(axs[2], '3. Phân bố Số lượng Sản phẩm theo Danh mục')
+
+        # === BIỂU ĐỒ 4 (MỚI): SO SÁNH GIÁ BÁN & GIÁ GỐC (CỘT ĐÔI) ===
+        df_price = get_category_price_data()
+        if not df_price.empty:
+            labels = df_price['category_name'].tolist()
+            avg_price = df_price['avg_price'].tolist()
+            avg_market = df_price['avg_market_price'].tolist()
+            
+            x = np.arange(len(labels))
+            width = 0.35  # Độ rộng của 1 cột
+            
+            axs[3].bar(x - width/2, avg_price, width, label='Giá Thực Bán', color='#007bff')
+            axs[3].bar(x + width/2, avg_market, width, label='Giá Niêm Yết', color='#6c757d')
+            axs[3].set_title('4. So sánh Giá bán trung bình và Giá gốc theo Danh mục', color='black', weight='bold', pad=15)
+            axs[3].set_xticks(x)
+            axs[3].set_xticklabels(labels, rotation=15, ha='right', fontsize=10)
+            axs[3].legend()
+        else:
+            show_empty_state(axs[3], '4. So sánh Giá bán trung bình và Giá gốc theo Danh mục')
+
+        # === BIỂU ĐỒ 5 (MỚI): CẠNH TRANH GIÁ THƯƠNG HIỆU HASAKI VS LAM THẢO ===
+        df_brand = get_brand_price_compare_data()
+        if not df_brand.empty:
+            # Sắp xếp theo Lượt bán và chỉ lấy Top 15 để biểu đồ không bị rối mắt
+            df_brand = df_brand.sort_values(by='total_sold', ascending=False).head(15)
+            
+            labels = df_brand['brand_name'].tolist()
+            hasaki_price = df_brand['avg_price_hasaki'].tolist()
+            lamthao_price = df_brand['avg_price_lamthao'].tolist()
+            
+            x = np.arange(len(labels))
             width = 0.35
-            axs[3, 0].bar(x - width/2, hasaki_data, width, label='Hasaki', color='#f39c12')
-            axs[3, 0].bar(x + width/2, lamthao_data, width, label='Lam Thảo', color='#e74c3c')
-            axs[3, 0].set_xticks(x)
-            axs[3, 0].set_xticklabels(categories, rotation=15, ha='right')
-            axs[3, 0].set_title('7. Cán cân Vốn Đọng Hàng tồn kho', weight='bold', pad=15)
-            axs[3, 0].legend()
-        else:
-            show_empty_state(axs[3, 0], '7. Cán cân Vốn Đọng Hàng tồn kho')
-
-        df6 = get_t6_revenue_discount()
-        if not df6.empty:
-            ax_left = axs[3, 1]
-            ax_right = ax_left.twinx()
             
-            ax_left.bar(df6['brand'], df6['total_revenue'], color=['#f39c12', '#e74c3c'], alpha=0.8)
-            ax_right.plot(df6['brand'], df6['avg_discount_percent'], color='blue', marker='o', linewidth=2)
-            
-            ax_left.set_title('8. Tổng doanh thu vs tỷ lệ Sale', weight='bold', pad=15)
-            ax_left.set_ylabel('Doanh thu (VND)')
-            ax_right.set_ylabel('% Giảm giá', color='blue')
+            axs[4].bar(x - width/2, hasaki_price, width, label='Shop: Hasaki', color='#198754')
+            axs[4].bar(x + width/2, lamthao_price, width, label='Shop: Lam Thảo', color='#fd7e14')
+            axs[4].set_title('5. Cạnh tranh Giá bán các Thương hiệu Nổi tiếng (Top 15)', color='black', weight='bold', pad=15)
+            axs[4].set_xticks(x)
+            axs[4].set_xticklabels(labels, rotation=25, ha='right', fontsize=10)
+            axs[4].legend()
         else:
-            show_empty_state(axs[3, 1], '8. Tổng doanh thu vs tỷ lệ Sale')
+            show_empty_state(axs[4], '5. Cạnh tranh Giá bán các Thương hiệu Nổi tiếng')
 
-        # 3. Đưa biểu đồ lên giao diện CustomTkinter
+        # Vẽ lên Giao diện
         canvas = FigureCanvasTkAgg(fig, master=parent_frame)
         canvas.draw()
-        
         canvas.get_tk_widget().pack(fill="x", expand=False, padx=10, pady=10)
+        
+    # ================= 4. RAW MAPREDUCE DATA =================
+    def setup_raw_data_frame(self):
+        self.raw_data_frame = ctk.CTkFrame(self, corner_radius=0, fg_color="transparent")
+        
+        # Phần Header chứa Combobox
+        top_frame = ctk.CTkFrame(self.raw_data_frame, fg_color="#f8f9fa")
+        top_frame.pack(fill="x", padx=20, pady=20)
+        
+        ctk.CTkLabel(top_frame, text="Chọn Bài toán MapReduce:", font=("Arial", 14, "bold"), text_color="black").pack(side="left", padx=15, pady=15)
+        
+        # Combobox chọn bài toán
+        job_titles = list(MAPREDUCE_JOBS_CONFIG.keys())
+        self.combo_jobs = ctk.CTkComboBox(top_frame, values=job_titles, command=self.load_raw_job_data, width=500)
+        self.combo_jobs.set(job_titles[0])
+        self.combo_jobs.pack(side="left", padx=10)
+        
+        ctk.CTkButton(top_frame, text="Tải dữ liệu", command=lambda: self.load_raw_job_data(self.combo_jobs.get()), width=100, fg_color="#17a2b8", hover_color="#138496").pack(side="left", padx=10)
+        
+        # Hiển thị tổng số dòng
+        self.lbl_row_count = ctk.CTkLabel(top_frame, text="Tổng số dòng: 0", font=("Arial", 12, "italic"), text_color="gray")
+        self.lbl_row_count.pack(side="right", padx=20)
+
+        # Phần Bảng (Treeview)
+        mid_frame = ctk.CTkFrame(self.raw_data_frame, fg_color="transparent")
+        mid_frame.pack(fill="both", expand=True, padx=20, pady=5)
+
+        # Scrollbars cho Bảng
+        tree_scroll_y = ttk.Scrollbar(mid_frame)
+        tree_scroll_y.pack(side="right", fill="y")
+        tree_scroll_x = ttk.Scrollbar(mid_frame, orient='horizontal')
+        tree_scroll_x.pack(side="bottom", fill="x")
+
+        # Khởi tạo Treeview
+        self.raw_tree = ttk.Treeview(mid_frame, yscrollcommand=tree_scroll_y.set, xscrollcommand=tree_scroll_x.set)
+        self.raw_tree.pack(fill="both", expand=True)
+        
+        tree_scroll_y.config(command=self.raw_tree.yview)
+        tree_scroll_x.config(command=self.raw_tree.xview)
+        
+        # Tải dữ liệu bài đầu tiên khi khởi động
+        self.load_raw_job_data(self.combo_jobs.get())
+
+    def load_raw_job_data(self, job_title):
+        # 1. Gọi API lấy DataFrame
+        df = get_raw_mapreduce_data(job_title)
+        
+        # 2. Xóa dữ liệu cũ trong bảng
+        self.raw_tree.delete(*self.raw_tree.get_children())
+        
+        if df.empty:
+            self.raw_tree["columns"] = ("Message",)
+            self.raw_tree["show"] = "headings"
+            self.raw_tree.heading("Message", text="THÔNG BÁO")
+            self.raw_tree.column("Message", width=800, anchor="center")
+            self.raw_tree.insert("", "end", values=("Chưa có dữ liệu cho bài toán này trên HDFS.",))
+            self.lbl_row_count.configure(text="Tổng số dòng: 0")
+            return
+            
+        # 3. Thiết lập cột mới theo DataFrame
+        columns = list(df.columns)
+        self.raw_tree["columns"] = columns
+        self.raw_tree["show"] = "headings"
+        
+        for col in columns:
+            self.raw_tree.heading(col, text=col.upper())
+            self.raw_tree.column(col, width=200, anchor="center")
+            
+        # 4. Chèn dữ liệu mới
+        for _, row in df.iterrows():
+            self.raw_tree.insert("", "end", values=list(row))
+            
+        self.lbl_row_count.configure(text=f"Tổng số dòng: {len(df)}")
 
 if __name__ == "__main__":
     app = ECommerceDashboard()
